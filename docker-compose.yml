@@ -1,0 +1,9 @@
+services:
+  smart_contract:
+    container_name: smart_contract
+    image: smart_contract
+    build:
+      context: ./smart_contract/
+    init: true
+    tty: true
+    stdin_open: true
