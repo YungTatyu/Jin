@@ -1,6 +1,6 @@
-# ビルドステージ
-FROM rust:latest AS build
+FROM rust:latest
 
+# TODO 完成時には `rm -rf /var/lib/apt/lists/*` の処理を入れるべき
 RUN apt-get update && \
 	apt-get install -y \
 	build-essential \
@@ -11,16 +11,13 @@ RUN apt-get update && \
 	protobuf-compiler \
 	libssl-dev
 
-# ここうまくいかない。バージョン(stable)を変えると上手くいく
+# solanaのインストール
 RUN sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
+ENV PATH="/root/.local/share/solana/install/active_release/bin:$PATH"
 
-# ここをコンテナ内にinstallされたsolana-CLIの適切なパスに変換する
-RUN export PATH="/root/.local/share/solana/install/active_release/bin:$PATH"
+# anchorのインストール
+RUN cargo install --git https://github.com/coral-xyz/anchor avm --locked --force && \
+	avm install v0.27.0
 
-WORKDIR /usr/src/myapp
-COPY . .
-RUN cargo install --path .
-
-FROM rust:latest AS production
-COPY --from=build /usr/src/myapp/target/release/smart_contract /usr/local/bin
-ENTRYPOINT ["/usr/local/bin/smart_contract"]
+# TODO ENTRYPOINTをスマートコントラクタのビルド AND デプロイに変更?
+ENTRYPOINT ["/bin/bash"]
