@@ -20,7 +20,7 @@ ENV PATH="/root/.local/share/solana/install/active_release/bin:$PATH"
 
 # Install anchor
 RUN cargo install --git https://github.com/coral-xyz/anchor avm --locked --force
-RUN avm install v0.27.0
+RUN avm install 0.27.0
 
 # Install yarn
 RUN npm install -g yarn
