@@ -18,7 +18,7 @@ RUN apt-get update && \
 RUN sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
 ENV PATH="/root/.local/share/solana/install/active_release/bin:$PATH"
 
-# anchorのインストール&init
+# anchorのインストール
 RUN cargo install --git https://github.com/coral-xyz/anchor avm --locked --force
 RUN avm install v0.27.0
 
@@ -29,16 +29,16 @@ RUN npm install -g yarn
 WORKDIR /usr/src/
 RUN anchor init project
 
-# ホスト側のソースコードと設定ファイルをCOPY
-COPY ./app/ /usr/src/project/app/
-COPY ./programs/ /usr/src/project/programs/
-
 # フロントエンドにsolana, anchorのパッケージをインストール
 WORKDIR /usr/src/project/app/
 RUN npm install @solana/web3.js @project-serum/anchor
 
+# ホスト側のソースコードと設定ファイルをCOPY
+COPY ./frontend/ /usr/src/project/app/
+COPY ./backend/ /usr/src/project/programs/
+
 # ビルド
-WORKDIR /usr/src/project
+WORKDIR /usr/src/project/
 RUN anchor build
 
 # デフォルトのdeploy先をローカルのテストネットに設定

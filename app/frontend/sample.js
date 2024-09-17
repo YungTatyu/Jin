@@ -4,7 +4,7 @@ const { Wallet } = require('@project-serum/anchor');
 const fs = require('fs');
 
 // プログラムID (Solana上にデプロイされたスマートコントラクトのプログラムID)
-const PROGRAM_ID = new PublicKey('CRmMvwrGKeDSHzBbvDP5QPeiSuiiypmPX3xAYCtESYsp');
+const PROGRAM_ID = new PublicKey('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
 
 // idl
 const idl = require('../target/idl/counter.json')

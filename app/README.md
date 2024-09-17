@@ -3,10 +3,10 @@
 2. `./app/sample.js` と `./programs/project/src/lib.rs` ファイル内のプログラムIDを取得したProgramIdで置換する
 ```
 // ./app/sample.js
-const PROGRAM_ID = new PublicKey('ランダムな文字列'); -> const PROGRAM_ID = new PublicKey('取得したProgramId');
+const PROGRAM_ID = new PublicKey('ランダム文字列'); -> const PROGRAM_ID = new PublicKey('取得したProgramId');
 
 // ./programs/project/src/lib.rs
-declare_id!("ランダムな文字列"); -> declare_id!("取得したProgramId");
+declare_id!("XXX..."); -> declare_id!("取得したProgramId");
 ```
 3. `anchor build` コマンドを実行
 4. `anchor deploy` コマンドを実行
