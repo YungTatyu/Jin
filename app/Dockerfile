@@ -1,4 +1,4 @@
-FROM rust:latest
+FROM rust:bookworm
 
 # solana, anchorインストール時の依存パッケージをインストール
 RUN apt-get update && \
