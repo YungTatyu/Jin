@@ -1,6 +1,6 @@
 FROM rust:bookworm
 
-# solana, anchorインストール時の依存パッケージをインストール
+# Install dependent packages
 RUN apt-get update && \
 	apt-get install -y \
 	build-essential \
@@ -14,38 +14,40 @@ RUN apt-get update && \
 	vim && \
 	rm -rf /var/lib/apt/lists/*
 
-# solanaのインストール
+# Install solana
 RUN sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
 ENV PATH="/root/.local/share/solana/install/active_release/bin:$PATH"
 
-# anchorのインストール
+# Install anchor
 RUN cargo install --git https://github.com/coral-xyz/anchor avm --locked --force
 RUN avm install v0.27.0
 
-# yarnのインストール
+# Install yarn
 RUN npm install -g yarn
 
-# projectのinit
+# Initialize Project
 WORKDIR /usr/src/
 RUN anchor init project
 
-# フロントエンドにsolana, anchorのパッケージをインストール
+# Install package for front-end
 WORKDIR /usr/src/project/app/
 RUN npm install @solana/web3.js @project-serum/anchor
 
-# ホスト側のソースコードと設定ファイルをCOPY
+# Copy front-end source code
 COPY ./frontend/ /usr/src/project/app/
+
+# Copy back-end source code
 COPY ./backend/ /usr/src/project/programs/
 
-# ビルド
+# Build by anchor
 WORKDIR /usr/src/project/
 RUN anchor build
 
-# デフォルトのdeploy先をローカルのテストネットに設定
+# Set the deployment destination to the local test net
 RUN solana config set --url http://localhost:8899
 
-# accountの作成
+# Generate test accounts
 RUN solana-keygen new --no-bip39-passphrase
 
-# solanaのローカルネットワークのサーバ
+# Specify solana's local network server as the entry point
 ENTRYPOINT ["/root/.local/share/solana/install/active_release/bin/solana-test-validator"]
