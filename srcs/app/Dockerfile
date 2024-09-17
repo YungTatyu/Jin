@@ -14,8 +14,21 @@ RUN apt-get update && \
 	vim && \
 	rm -rf /var/lib/apt/lists/*
 
-# Install solana
-RUN sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
+# Install solana appropriately depending on CPU architecture
+RUN ARCH=$(uname -m) && \
+	if [ "$ARCH" = "x86_64" ]; then \
+	sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"; \
+	elif [ "$ARCH" = "aarch64" ]; then \
+	git clone https://github.com/solana-labs/solana.git && \
+	cd solana && \
+	cargo build --release && \
+	cp target/release/solana /usr/local/bin/; \
+	else \
+	echo "Unsupported architecture: $ARCH"; \
+	exit 1; \
+	fi
+
+# Pass for x86_86
 ENV PATH="/root/.local/share/solana/install/active_release/bin:$PATH"
 
 # Install anchor
