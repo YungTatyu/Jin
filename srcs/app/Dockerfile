@@ -52,6 +52,8 @@ COPY ./frontend/ /usr/src/project/app/
 # Copy back-end source code
 COPY ./backend/ /usr/src/project/programs/
 
+ENV PATH="/usr/local/bin:$PATH"
+
 # Build by anchor
 WORKDIR /usr/src/project/
 RUN anchor build
