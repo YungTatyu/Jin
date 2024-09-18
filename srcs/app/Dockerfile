@@ -17,19 +17,21 @@ RUN apt-get update && \
 # Install solana appropriately depending on CPU architecture
 RUN ARCH=$(uname -m) && \
 	if [ "$ARCH" = "x86_64" ]; then \
-	sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"; \
+	sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)" && \
+	cp /root/.local/share/solana/install/active_release/bin/solana-test-validator /usr/local/bin/; \
 	elif [ "$ARCH" = "aarch64" ]; then \
 	git clone https://github.com/solana-labs/solana.git && \
 	cd solana && \
 	cargo build --release && \
-	cp target/release/solana /usr/local/bin/; \
+	cp /solana/target/release/solana-test-validator /usr/local/bin/ && \
+	cp -r /solana/sdk /solana/target/release/; \
 	else \
 	echo "Unsupported architecture: $ARCH"; \
 	exit 1; \
 	fi
 
-# Pass for x86_86
-ENV PATH="/root/.local/share/solana/install/active_release/bin:$PATH"
+# Pass for x86_86 and arm
+ENV PATH="/solana/target/release:/root/.local/share/solana/install/active_release/bin:$PATH"
 
 # Install anchor
 RUN cargo install --git https://github.com/coral-xyz/anchor avm --locked --force
@@ -65,4 +67,4 @@ RUN solana config set --url http://localhost:8899
 RUN solana-keygen new --no-bip39-passphrase
 
 # Specify solana's local network server as the entry point
-ENTRYPOINT ["/root/.local/share/solana/install/active_release/bin/solana-test-validator"]
+ENTRYPOINT ["/usr/local/bin/solana-test-validator"]
