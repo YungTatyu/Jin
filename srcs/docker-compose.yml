@@ -1,0 +1,9 @@
+services:
+  app:
+    container_name: app
+    image: app
+    build:
+      context: ./app/
+    init: true
+    tty: true
+    stdin_open: true
