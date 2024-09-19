@@ -18,7 +18,7 @@ fmt:
 	cp -r ./srcs/app/backend ./srcs/lint-fmt
 	cp -r ./srcs/app/frontend ./srcs/lint-fmt
 	@echo "FORMAT"
-	docker-compose -f ./srcs/debug_compose.yml run --name lint-container lint-format fmt
+	${DOCKER_COMPOSE} -f ./srcs/debug_compose.yml run --name lint-container lint-format fmt
 	rm -rf ./srcs/app/frontend/src/
 	rm -rf ./srcs/app/backend/project/src/
 	docker cp lint-container:frontend/src ./srcs/app/frontend/src/
@@ -31,6 +31,6 @@ lint:
 	cp -r ./srcs/app/backend ./srcs/lint-fmt
 	cp -r ./srcs/app/frontend ./srcs/lint-fmt
 	@echo "LINT"
-	docker-compose -f ./srcs/debug_compose.yml run --rm lint-format lint
+	${DOCKER_COMPOSE} -f ./srcs/debug_compose.yml run --rm lint-format lint
 	rm -rf ./srcs/lint-fmt/frontend
 	rm -rf ./srcs/lint-fmt/backend
