@@ -10,16 +10,17 @@ fn contents_read(filename: &str) -> io::Result<String> {
 // replace_pathのファイルから該当箇所を引数のprogram_idで置き換える
 fn replace_content(program_id: &str, replace_path: &str) -> io::Result<()> {
     let replace_content = contents_read(replace_path)?;
+    let tmp = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS";
 
     // 拡張子で置き換える方法を変えている rsとts, js
     let new_content = match Path::new(replace_path).extension().and_then(|s| s.to_str()) {
         Some("rs") => replace_content.replacen(
-            "declare_id!(\"\")",
+            "declare_id!(\"Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS\")",
             &format!("declare_id!(\"{}\")", program_id),
             1,
         ),
         Some("js") | Some("ts") => replace_content.replacen(
-            "const PROGRAM_ID = new PublicKey('');",
+            "const PROGRAM_ID = new PublicKey('Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS');",
             &format!("const PROGRAM_ID = new PublicKey('{}');", program_id),
             1,
         ),

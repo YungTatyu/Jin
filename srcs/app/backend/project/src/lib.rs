@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 
 // SolanaのProgram IDを指定
-declare_id!("");
+declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
 #[program]
 pub mod counter {
