@@ -4,9 +4,9 @@ services:
     container_name: lint-format
     image: lint-format
     build:
-      context: ./debug/
+      context: ./lint-fmt/
     volumes:
-      - .:/debug
+      - .:/lint-fmt
     environment:
       - FRONTEND_DIR=./frontend
       - TOML_FILE=./backend/Cargo.toml
