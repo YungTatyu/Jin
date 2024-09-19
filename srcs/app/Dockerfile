@@ -44,6 +44,12 @@ RUN npm install -g yarn
 WORKDIR /usr/src/
 RUN anchor init project
 
+# Files to run in the container
+COPY ./replace_program_id.sh ./replace_program_id.sh
+RUN chmod +x ./replace_program_id.sh
+COPY ./Makefile ./Makefile
+COPY ./replace.rs ./replace.rs
+
 # Copy front-end source code
 COPY ./frontend/ /usr/src/project/app/
 
@@ -56,15 +62,6 @@ RUN npm install @solana/web3.js @project-serum/anchor
 
 # Copy back-end source code
 COPY ./backend/ /usr/src/project/programs/
-
-# Files to run in the container
-WORKDIR /usr/src/
-COPY ./replace_program_id.sh ./replace_program_id.sh
-RUN chmod +x ./replace_program_id.sh
-
-COPY ./Makefile ./Makefile
-COPY ./replace.rs ./replace.rs
-
 
 # Build by anchor
 WORKDIR /usr/src/project/
@@ -80,8 +77,6 @@ RUN solana config set --url http://localhost:8899
 
 # Generate test accounts
 RUN solana-keygen new --no-bip39-passphrase
-
-
 
 # Expose the port that Next.js runs on
 EXPOSE 3000
