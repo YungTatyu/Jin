@@ -57,6 +57,17 @@ RUN npm install @solana/web3.js @project-serum/anchor
 # Copy back-end source code
 COPY ./backend/ /usr/src/project/programs/
 
+# 
+WORKDIR /usr/src/
+COPY ./replace_program_id.sh ./replace_program_id.sh
+RUN chmod +x ./replace_program_id.sh
+
+COPY ./Makefile ./Makefile
+COPY ./replace.rs ./replace.rs
+
+RUN ls ./project/app/src/app/ && exit 1
+
+
 # Build by anchor
 WORKDIR /usr/src/project/
 RUN anchor build
@@ -71,6 +82,8 @@ RUN solana config set --url http://localhost:8899
 
 # Generate test accounts
 RUN solana-keygen new --no-bip39-passphrase
+
+
 
 # Expose the port that Next.js runs on
 EXPOSE 3000

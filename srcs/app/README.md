@@ -1,13 +1,17 @@
 # コンテナ起動後の流れ
-1. `anchor deploy` コマンドを実行。成功時にターミナルにProgramIdが表示されるのでコピー
-2. `./app/sample.js` と `./programs/project/src/lib.rs` ファイル内のプログラムIDを取得したProgramIdで置換する
-```
-// ./app/sample.js
-const PROGRAM_ID = new PublicKey('ランダム文字列'); -> const PROGRAM_ID = new PublicKey('取得したProgramId');
 
-// ./programs/project/src/lib.rs
-declare_id!("XXX..."); -> declare_id!("取得したProgramId");
+1. コンテナ内でMakeをするだけで動くようにしました。
+2. Makefileの中で "replace_program_id.sh" を実行している。
+さらにその中でreplace.rsをコンパイルし、その実行ファイルを使って、program_idが必要な部分だけ置き換えています。
+<注意点>
+1. replace_program_id.sh の中で置き換えるファイルを書く必要がある。これから開発をしていく中で順次追加していきましょう。
+2. 置き換えるファイルの文字列の部分は空にしておく必要があります。
+rust
+```rs
+declare_id!("");
 ```
-3. `anchor build` コマンドを実行
-4. `anchor deploy` コマンドを実行
-5. `node app/sample.js` を複数回実行
+
+typescript, javascript
+```ts
+const PROGRAM_ID = new PublicKey('');
+```
