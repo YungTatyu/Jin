@@ -1,0 +1,12 @@
+version: '3'
+services:
+  lint-format:
+    container_name: lint-format
+    image: lint-format
+    build:
+      context: ./debug/
+    volumes:
+      - .:/debug
+    environment:
+      - FRONTEND_DIR=./frontend
+      - TOML_FILE=./backend/Cargo.toml

@@ -15,16 +15,37 @@ down:
 re: down up
 
 fmt:
+	cp -r ./srcs/app/backend ./srcs/debug
+	cp -r ./srcs/app/frontend ./srcs/debug
 	@echo "FORMAT"
-	npm run format --prefix $(FRONTEND_DIR)
-	@echo ""
-	cargo fmt --manifest-path $(TOML_FILE)
+	docker-compose -f ./srcs/debug_compose.yml run --name lint-container lint-format fmt
+	rm -rf ./srcs/app/frontend/src/
+	rm -rf ./srcs/app/backend/project/src/
+	docker cp lint-container:frontend/src ./srcs/app/frontend/src/
+	docker cp lint-container:backend/src ./srcs/app/backend/project/src/
+	rm -rf ./srcs/debug/frontend
+	rm -rf ./srcs/debug/backend
 
 lint:
+	cp -r ./srcs/app/backend ./srcs/debug
+	cp -r ./srcs/app/frontend ./srcs/debug
 	@echo "LINT"
-	npm run lint --prefix $(FRONTEND_DIR)
-	@echo ""
-	@echo "TYPE-CHECK"
-	npm run type-check --prefix $(FRONTEND_DIR)
-	@echo ""
-	cargo clippy --manifest-path $(TOML_FILE)
+	docker-compose -f ./srcs/debug_compose.yml run --rm lint-format lint
+	rm -rf ./srcs/debug/frontend
+	rm -rf ./srcs/debug/backend
+
+
+# fmt:
+# 	@echo "FORMAT"
+# 	npm run format --prefix $(FRONTEND_DIR)
+# 	@echo ""
+# 	cargo fmt --manifest-path $(TOML_FILE)
+
+# lint:
+# 	@echo "LINT"
+# 	npm run lint --prefix $(FRONTEND_DIR)
+# 	@echo ""
+# 	@echo "TYPE-CHECK"
+# 	npm run type-check --prefix $(FRONTEND_DIR)
+# 	@echo ""
+# 	cargo clippy --manifest-path $(TOML_FILE)
