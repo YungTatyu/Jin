@@ -57,15 +57,13 @@ RUN npm install @solana/web3.js @project-serum/anchor
 # Copy back-end source code
 COPY ./backend/ /usr/src/project/programs/
 
-# 
+# Files to run in the container
 WORKDIR /usr/src/
 COPY ./replace_program_id.sh ./replace_program_id.sh
 RUN chmod +x ./replace_program_id.sh
 
 COPY ./Makefile ./Makefile
 COPY ./replace.rs ./replace.rs
-
-RUN ls ./project/app/src/app/ && exit 1
 
 
 # Build by anchor
