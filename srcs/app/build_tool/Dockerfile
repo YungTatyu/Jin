@@ -70,7 +70,7 @@ WORKDIR /usr/src/
 COPY ./build_tool/replace_program_id.sh ./replace_program_id.sh
 RUN chmod +x ./replace_program_id.sh
 COPY ./build_tool/Makefile ./Makefile
-COPY ./build_tool/replace.rs ./replace.rs
+COPY ./build_tool/replace ./replace
 COPY ./build_tool/grep.py ./grep.py
 
 # Set the deployment destination to the local test net
