@@ -73,7 +73,6 @@ COPY ./build_tool/Makefile ./Makefile
 COPY ./build_tool/replace.rs ./replace.rs
 COPY ./build_tool/grep.py ./grep.py
 
-
 # Set the deployment destination to the local test net
 RUN solana config set --url http://localhost:8899
 

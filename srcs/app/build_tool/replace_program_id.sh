@@ -1,8 +1,10 @@
 #!/bin/bash
 
-rustc replace.rs
-./replace project/programs/project/src/lib.rs
-./replace project/app/sample/test.js
+cargo build --manifest-path replace/Cargo.toml
 
-rm replace
+./replace/target/debug/replace project/programs/project/src/lib.rs
+./replace/target/debug/replace project/app/sample/test.js
+
+cargo clean --manifest-path replace/Cargo.toml
+
 rm anchor_id.txt
