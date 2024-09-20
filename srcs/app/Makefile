@@ -11,8 +11,13 @@ NEXT_DEV = npx next dev -p 3000
 NEXT_START = npx next start -p 3000
 
 all:
-	$(ANCHOR_DEPLOY) > anchor_id.txt
+	cd project
+	$(ANCHOR_DEPLOY) > ../anchor_id.txt
+	cd ../
+	python grep.py
 	./replace_program_id.sh
+	cd project
 	$(ANCHOR_BUILD)
 	$(ANCHOR_DEPLOY)
+	cd ../
 	$(NEXT_DEV)
