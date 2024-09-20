@@ -11,8 +11,8 @@ NEXT_DEV = npx next dev -p 3000
 NEXT_START = npx next start -p 3000
 
 all:
-	${ANCHOR_DEPLOY} > anchor_id.txt
+	$(ANCHOR_DEPLOY) > anchor_id.txt
 	./replace_program_id.sh
-	${ANCHOR_BUILD}
-	${ANCHOR_DEPLOY}
-	${NEXT_DEV}
+	$(ANCHOR_BUILD)
+	$(ANCHOR_DEPLOY)
+	$(NEXT_DEV)
