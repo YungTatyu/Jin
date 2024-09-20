@@ -8,7 +8,7 @@ FRONTEND_DIR := $(APP_DIR)/frontend/
 TOML_FILE := $(APP_DIR)/backend/project/Cargo.toml
 
 up:
-	${DOCKER_COMPOSE} -f ${COMPOSE_YML_PATH} up -d --build app
+	${DOCKER_COMPOSE} -f ${COMPOSE_YML_PATH} up -d --build
 
 down:
 	${DOCKER_COMPOSE} -f ${COMPOSE_YML_PATH} down --rmi all --volumes --remove-orphans
