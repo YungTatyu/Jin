@@ -4,6 +4,7 @@ services:
     image: app
     build:
       context: ./app/
+      dockerfile: build_tool/Dockerfile
     init: true
     tty: true
     stdin_open: true
@@ -12,3 +13,15 @@ services:
     environment:
       - FRONTEND_ROOT=./project/app/src/app
       - BACKEND_ROOT=./project/programs/project/src
+
+  lint-format:
+    container_name: lint-format
+    image: lint-format
+    build:
+      context: ./app/
+      dockerfile: debug_tool/Dockerfile
+    volumes:
+      - .:/lint-fmt
+    environment:
+      - FRONTEND_DIR=./frontend
+      - TOML_FILE=./backend/Cargo.toml

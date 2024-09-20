@@ -2,12 +2,13 @@
 
 DOCKER_COMPOSE = @docker compose
 COMPOSE_YML_PATH = ./srcs/docker-compose.yml
-# フロントエンドのディレクトリを指定
-FRONTEND_DIR := ./srcs/app/frontend/
-TOML_FILE := ./srcs/app/backend/project/Cargo.toml
+LINT_FMT_DIR := ./srcs/lint-fmt
+APP_DIR := ./srcs/app
+FRONTEND_DIR := $(APP_DIR)/frontend/
+TOML_FILE := $(APP_DIR)/backend/project/Cargo.toml
 
 up:
-	${DOCKER_COMPOSE} -f ${COMPOSE_YML_PATH} up -d --build
+	${DOCKER_COMPOSE} -f ${COMPOSE_YML_PATH} up -d --build app
 
 down:
 	${DOCKER_COMPOSE} -f ${COMPOSE_YML_PATH} down --rmi all --volumes --remove-orphans
@@ -15,22 +16,14 @@ down:
 re: down up
 
 fmt:
-	cp -r ./srcs/app/backend ./srcs/lint-fmt
-	cp -r ./srcs/app/frontend ./srcs/lint-fmt
 	@echo "FORMAT"
-	${DOCKER_COMPOSE} -f ./srcs/debug_compose.yml run --name lint-container lint-format fmt
-	rm -rf ./srcs/app/frontend/src/
-	rm -rf ./srcs/app/backend/project/src/
-	docker cp lint-container:frontend/src ./srcs/app/frontend/src/
-	docker cp lint-container:backend/src ./srcs/app/backend/project/src/
+	${DOCKER_COMPOSE} -f ${COMPOSE_YML_PATH} run --name lint-container lint-format fmt
+	${RM} -rf $(APP_DIR)/frontend/src/
+	${RM} -rf $(APP_DIR)/backend/project/src/
+	docker cp lint-container:frontend/src $(APP_DIR)/frontend/src/
+	docker cp lint-container:backend/src $(APP_DIR)/backend/project/src/
 	docker rm lint-container
-	rm -rf ./srcs/lint-fmt/frontend
-	rm -rf ./srcs/lint-fmt/backend
 
 lint:
-	cp -r ./srcs/app/backend ./srcs/lint-fmt
-	cp -r ./srcs/app/frontend ./srcs/lint-fmt
 	@echo "LINT"
-	${DOCKER_COMPOSE} -f ./srcs/debug_compose.yml run --rm lint-format lint
-	rm -rf ./srcs/lint-fmt/frontend
-	rm -rf ./srcs/lint-fmt/backend
+	${DOCKER_COMPOSE} -f ${COMPOSE_YML_PATH} run --rm lint-format lint

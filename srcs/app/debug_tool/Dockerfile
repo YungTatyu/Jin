@@ -22,7 +22,7 @@ RUN npm install --prefix ./frontend
 #RUN npm install -g prettier --prefix ./frontend
 
 # コマンドを実行するシェルスクリプトを作成
-COPY ./entrypoint.sh /entrypoint.sh
+COPY ./debug_tool/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["./entrypoint.sh"]
