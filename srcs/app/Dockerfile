@@ -49,6 +49,7 @@ COPY ./replace_program_id.sh ./replace_program_id.sh
 RUN chmod +x ./replace_program_id.sh
 COPY ./Makefile ./Makefile
 COPY ./replace.rs ./replace.rs
+COPY ./grep.py ./grep.py
 
 # Copy front-end source code
 COPY ./frontend/ /usr/src/project/app/
