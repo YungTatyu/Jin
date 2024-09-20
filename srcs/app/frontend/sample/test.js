@@ -7,7 +7,7 @@ const fs = require('fs');
 const PROGRAM_ID = new PublicKey('Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS');
 
 // SolanaプログラムのIDL(Interface Definition Language)を読み込む
-const IDL = require('../target/idl/counter.json')
+const IDL = require('../../target/idl/counter.json')
 
 // ローカル環境の秘密鍵のパス
 const WALLET_FILE_PATH = '/root/.config/solana/id.json';

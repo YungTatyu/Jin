@@ -44,13 +44,6 @@ RUN npm install -g yarn
 WORKDIR /usr/src/
 RUN anchor init project
 
-# Files to run in the container
-COPY ./replace_program_id.sh ./replace_program_id.sh
-RUN chmod +x ./replace_program_id.sh
-COPY ./Makefile ./Makefile
-COPY ./replace.rs ./replace.rs
-COPY ./grep.py ./grep.py
-
 # Copy front-end source code
 COPY ./frontend/ /usr/src/project/app/
 
@@ -71,6 +64,14 @@ RUN anchor build
 # Build Next.js app
 WORKDIR /usr/src/project/app/
 RUN npm run build
+
+WORKDIR /usr/src/
+# Files to run in the container
+COPY ./build_tool/replace_program_id.sh ./replace_program_id.sh
+RUN chmod +x ./replace_program_id.sh
+COPY ./build_tool/Makefile ./Makefile
+COPY ./build_tool/replace.rs ./replace.rs
+COPY ./build_tool/grep.py ./grep.py
 
 
 # Set the deployment destination to the local test net
