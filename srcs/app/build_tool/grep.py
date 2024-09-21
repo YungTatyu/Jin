@@ -1,5 +1,5 @@
-Id = "Program Id: "
-Path = "anchor_id.txt"
+ID = "Program Id: "
+PATH = "anchor_id.txt"
 
 def find_str(file_path, find_str) -> str:
     with open(file_path, encoding='utf-8') as f:
@@ -10,14 +10,14 @@ def find_str(file_path, find_str) -> str:
         return ""
 
 def main():
-    s = find_str(Path, Id)
+    s = find_str(PATH, ID)
     if s == "":
         print("anchor_id.txtに\"Program Id: \"がない")
         exit(1)
 
-    s = s.replace(id, '')
+    s = s.replace(ID, '')
 
-    with open(Path, 'w') as file:
+    with open(PATH, 'w') as file:
         file.write(s)
 
 main()
