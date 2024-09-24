@@ -52,7 +52,7 @@ pub mod refundable_escrow {
             },
             key if key == seller_pubkey => match Clock::get()?.unix_timestamp {
                 now if (refund_deadline < now) => transfer_sol_from_pda(&from, &to, amount),
-                _ => Err(ErrorCode::RefundError.into()),
+                _ => Err(ErrorCode::FundraisingError.into()),
             },
             _ => return Err(ErrorCode::InvalidAccountError.into()),
         }
