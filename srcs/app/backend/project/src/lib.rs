@@ -30,11 +30,7 @@ pub mod refundable_escrow {
         let from = ctx.accounts.buyer.to_account_info();
         let to = ctx.accounts.escrow.to_account_info();
         let system_program = ctx.accounts.system_program.to_account_info();
-        let ix = system_instruction::transfer(&from.key(), &to.key(), amount);
-        match invoke(&ix, &[from, to, system_program]) {
-            Ok(_) => Ok(()),
-            Err(_) => Err(ErrorCode::BuyerUnderfundedError.into()),
-        }
+        transfer_sol_to_pda(from, to, system_program, amount)
     }
 
     pub fn settle_sol(ctx: Context<SettleSol>) -> Result<()> {
@@ -57,6 +53,19 @@ pub mod refundable_escrow {
             },
             _ => return Err(ErrorCode::InvalidAccountError.into()),
         }
+    }
+}
+
+fn transfer_sol_to_pda<'info>(
+    from: AccountInfo<'info>,
+    to: AccountInfo<'info>,
+    system_program: AccountInfo<'info>,
+    amount: u64,
+) -> Result<()> {
+    let ix = system_instruction::transfer(&from.key(), &to.key(), amount);
+    match invoke(&ix, &[from, to, system_program]) {
+        Ok(_) => Ok(()),
+        Err(_) => Err(ErrorCode::BuyerUnderfundedError.into()),
     }
 }
 
