@@ -11,7 +11,7 @@ pub mod refundable_escrow {
     pub fn create_refundable_escrow(
         ctx: Context<CreateRefundableEscrow>,
         transaction_id: u64,
-        amount: u64,
+        lamports: u64,
         refundable_seconds: i64,
         user_defined_data: String,
     ) -> Result<()> {
@@ -20,23 +20,23 @@ pub mod refundable_escrow {
         escrow.seller_pubkey = ctx.accounts.seller.key();
         escrow.buyer_pubkey = ctx.accounts.buyer.key();
         escrow.transaction_id = transaction_id;
-        escrow.amount = amount;
+        escrow.lamports = lamports;
         escrow.create_at = Clock::get()?.unix_timestamp;
         escrow.refund_deadline = escrow.create_at + refundable_seconds;
         escrow.is_canceled = false;
         escrow.user_defined_data = user_defined_data;
 
-        // SOL transfer buyer -> RefundableEscrowPDA
+        // lamports transfer buyer -> RefundableEscrowPDA
         let from = ctx.accounts.buyer.to_account_info();
         let to = ctx.accounts.escrow.to_account_info();
         let system_program = ctx.accounts.system_program.to_account_info();
-        transfer_sol_to_pda(from, to, system_program, amount)
+        transfer_lamports_to_pda(from, to, system_program, lamports)
     }
 
-    pub fn settle_sol(ctx: Context<SettleSol>) -> Result<()> {
+    pub fn settle_lamports(ctx: Context<SettleLamports>) -> Result<()> {
         let from = ctx.accounts.escrow.to_account_info();
         let to = ctx.accounts.requestor.to_account_info();
-        let amount = ctx.accounts.escrow.amount;
+        let lamports = ctx.accounts.escrow.lamports;
         let seller_pubkey = ctx.accounts.escrow.seller_pubkey;
         let buyer_pubkey = ctx.accounts.escrow.buyer_pubkey;
         let refund_deadline = ctx.accounts.escrow.refund_deadline;
@@ -44,11 +44,11 @@ pub mod refundable_escrow {
 
         match to.key() {
             key if key == buyer_pubkey => match now {
-                now if (now <= refund_deadline) => transfer_sol_from_pda(&from, &to, amount),
+                now if (now <= refund_deadline) => transfer_lamports_from_pda(&from, &to, lamports),
                 _ => Err(ErrorCode::RefundError.into()),
             },
             key if key == seller_pubkey => match now {
-                now if (refund_deadline < now) => transfer_sol_from_pda(&from, &to, amount),
+                now if (refund_deadline < now) => transfer_lamports_from_pda(&from, &to, lamports),
                 _ => Err(ErrorCode::FundraisingError.into()),
             },
             _ => return Err(ErrorCode::InvalidAccountError.into()),
@@ -56,25 +56,25 @@ pub mod refundable_escrow {
     }
 }
 
-fn transfer_sol_to_pda<'info>(
+fn transfer_lamports_to_pda<'info>(
     from: AccountInfo<'info>,
     to: AccountInfo<'info>,
     system_program: AccountInfo<'info>,
-    amount: u64,
+    lamports: u64,
 ) -> Result<()> {
-    let ix = system_instruction::transfer(&from.key(), &to.key(), amount);
+    let ix = system_instruction::transfer(&from.key(), &to.key(), lamports);
     match invoke(&ix, &[from, to, system_program]) {
         Ok(_) => Ok(()),
         Err(_) => Err(ErrorCode::BuyerUnderfundedError.into()),
     }
 }
 
-fn transfer_sol_from_pda(from: &AccountInfo, to: &AccountInfo, amount: u64) -> Result<()> {
-    if **from.try_borrow_lamports()? < amount {
+fn transfer_lamports_from_pda(from: &AccountInfo, to: &AccountInfo, lamports: u64) -> Result<()> {
+    if **from.try_borrow_lamports()? < lamports {
         return Err(ErrorCode::CashShortageError.into());
     }
-    **from.try_borrow_mut_lamports()? -= amount;
-    **to.try_borrow_mut_lamports()? += amount;
+    **from.try_borrow_mut_lamports()? -= lamports;
+    **to.try_borrow_mut_lamports()? += lamports;
     Ok(())
 }
 
@@ -102,7 +102,7 @@ pub struct CreateRefundableEscrow<'info> {
 }
 
 #[derive(Accounts)]
-pub struct SettleSol<'info> {
+pub struct SettleLamports<'info> {
     // buyer or seller
     requestor: Signer<'info>,
 
@@ -116,7 +116,7 @@ pub struct RefundableEscrow {
     seller_pubkey: Pubkey,     // 32
     buyer_pubkey: Pubkey,      // 32
     transaction_id: u64,       // 8
-    amount: u64,               // 8
+    lamports: u64,             // 8
     create_at: i64,            // 8 (unix_timestamp)
     refund_deadline: i64,      // 8 (unix_timestamp)
     is_canceled: bool,         // 1
@@ -125,7 +125,7 @@ pub struct RefundableEscrow {
 
 #[error_code]
 pub enum ErrorCode {
-    #[msg("Buyer doesn't hold the required amount.")]
+    #[msg("Buyer doesn't hold the required lamports.")]
     BuyerUnderfundedError,
     #[msg("Invalid account provided.")]
     InvalidAccountError,
