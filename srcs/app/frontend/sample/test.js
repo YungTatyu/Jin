@@ -4,13 +4,14 @@ const { Wallet } = require('@project-serum/anchor');
 const fs = require('fs');
 
 // SolanaのProgram IDを指定
-const PROGRAM_ID = new PublicKey('Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS');
+const PROGRAM_ID = new PublicKey('FuPCcrAxKT4QKQMcdYf3e65DReF7DV1C8sW8TowcSYMN');
 
 // SolanaプログラムのIDL(Interface Definition Language)を読み込む
-const IDL = require('../../target/idl/counter.json')
+const IDL = require('../../target/idl/refundable_escrow.json')
 
 // ローカル環境の秘密鍵のパス
 const WALLET_FILE_PATH = '/root/.config/solana/id.json';
+const SELLER_FILE_PATH = '/root/.config/solana/id2.json';
 
 // 使用するネットワーク
 const DEPLOY_NET = 'http://127.0.0.1:8899';
@@ -38,88 +39,157 @@ async function setupProvider() {
 }
 
 // CounterアカウントのPDA(Program Derived Address)を取得する関数
-async function getCounterPDA(authorityPublicKey) {
-	// authority(ユーザー)の公開鍵に基づいてPDAを生成する
-	const [counterPDA, bump] = await PublicKey.findProgramAddress(
-		[authorityPublicKey.toBuffer()], // authorityの公開鍵をバッファに変換
+async function getEscrowPDA(buyer_pubkey, seller_pubkey, transactionId) {
+	const transactionIdBuffer = Buffer.alloc(8);
+	transactionIdBuffer.writeBigInt64LE(BigInt(transactionId.toNumber()), 0);
+
+	const seeds = [
+		buyer_pubkey.toBuffer(),
+		seller_pubkey.toBuffer(),
+		transactionIdBuffer,
+	]
+
+	const [counterPDA, _] = await PublicKey.findProgramAddress(
+		seeds,
 		PROGRAM_ID
 	);
 	return counterPDA;
 }
 
-// Counterアカウントを作成する関数
-async function createCounter() {
-	// プロバイダーをセットアップ
+async function createEscrow() {
 	const provider = await setupProvider();
-
-	// プログラムをAnchorを使ってセットアップ
 	const program = new anchor.Program(IDL, PROGRAM_ID, provider);
+	const buyerPublicKey = provider.wallet.publicKey;
+	const seller = new anchor.Wallet(loadWalletKey(SELLER_FILE_PATH));
+	const transactionId = new anchor.BN(1);
+	const lamports = new anchor.BN(500000);
+	const refundableSeconds = new anchor.BN(10);
+	const userDefinedData = "ABCDEFG";
+	const escrowPDA = await getEscrowPDA(buyerPublicKey, seller.publicKey, transactionId);
 
-	// authority(ウォレット)の公開鍵を取得
-	const authorityPublicKey = provider.wallet.publicKey;
-
-	// CounterアカウントのPDAを取得
-	const counterPDA = await getCounterPDA(authorityPublicKey);
-
-	// スマートコントラクトを呼び出してCounterアカウントを作成
 	await program.methods
-		.createCounter() // createCounterメソッドを呼び出し
+		.createRefundableEscrow(transactionId, lamports, refundableSeconds, userDefinedData)
 		.accounts({
-			authority: authorityPublicKey, // authority(ウォレット)
-			counter: counterPDA, // CounterアカウントのPDA
-			systemProgram: SystemProgram.programId, // システムプログラム(アカウント作成に必要)
+			buyer: buyerPublicKey,
+			seller: seller.publicKey,
+			escrow: escrowPDA,
+			systemProgram: SystemProgram.programId,
 		})
-		.rpc(); // 実際にRPCリクエストを送信
+		.rpc();
 
-	// 成功した場合、PDAを表示
-	console.log('Counter created successfully:', counterPDA.toString());
+	console.log('Buyer  Balance:', await provider.connection.getBalance(buyerPublicKey));
+	console.log('Seller Balance:', await provider.connection.getBalance(seller.publicKey));
+	findPDA(buyerPublicKey);
 }
 
-// Counterアカウントをインクリメントする関数
-async function updateCounter() {
-	// プロバイダーをセットアップ
+async function refund() {
 	const provider = await setupProvider();
-
-	// プログラムをAnchorを使ってセットアップ
 	const program = new anchor.Program(IDL, PROGRAM_ID, provider);
+	const buyerPublicKey = provider.wallet.publicKey;
+	const seller = new anchor.Wallet(loadWalletKey(SELLER_FILE_PATH));
+	const transactionId = new anchor.BN(1);
+	const escrowPDA = await getEscrowPDA(buyerPublicKey, seller.publicKey, transactionId);
 
-	// authority(ウォレット)の公開鍵を取得
-	const authorityPublicKey = provider.wallet.publicKey;
-
-	// CounterアカウントのPDAを取得
-	const counterPDA = await getCounterPDA(authorityPublicKey);
-
-	// Counterアカウントの現在の値を取得して表示
-	const counterAccount = await program.account.counter.fetch(counterPDA);
-	console.log('Current Counter Value:', counterAccount.count.toString());
-
-	// スマートコントラクトを呼び出してカウンタをインクリメント
 	await program.methods
-		.updateCounter() // updateCounterメソッドを呼び出し
+		.settleLamports()
 		.accounts({
-			authority: authorityPublicKey, // authority(ウォレット)
-			counter: counterPDA, // CounterアカウントのPDA
+			requestor: buyerPublicKey,
+			escrow: escrowPDA,
 		})
-		.rpc(); // 実際にRPCリクエストを送信
+		.rpc();
 
-	// 成功した場合、メッセージを表示
-	console.log('Counter updated successfully');
+	console.log('Buyer  Balance:', await provider.connection.getBalance(buyerPublicKey));
+	console.log('Seller Balance:', await provider.connection.getBalance(seller.publicKey));
+	findPDA(buyerPublicKey);
 }
 
-// メインの処理を実行する即時関数
+async function withdraw() {
+	const provider = await setupProvider();
+	const program = new anchor.Program(IDL, PROGRAM_ID, provider);
+	const buyerPublicKey = provider.wallet.publicKey;
+	const seller = new anchor.Wallet(loadWalletKey(SELLER_FILE_PATH));
+	const transactionId = new anchor.BN(1);
+	const escrowPDA = await getEscrowPDA(buyerPublicKey, seller.publicKey, transactionId);
+
+	await program.methods
+		.settleLamports()
+		.accounts({
+			requestor: seller.publicKey,
+			escrow: escrowPDA,
+		})
+		.signers([seller.payer])
+		.rpc();
+
+	console.log('Buyer  Balance:', await provider.connection.getBalance(buyerPublicKey));
+	console.log('Seller Balance:', await provider.connection.getBalance(seller.publicKey));
+	findPDA(buyerPublicKey);
+}
+
+async function findPDA(buyer_pubkey) {
+	const connection = new Connection(DEPLOY_NET, 'confirmed');
+	const accounts = await connection.getParsedProgramAccounts(
+		PROGRAM_ID,
+		{
+			filters: [
+				{
+					memcmp: {
+						offset: 40,
+						bytes: buyer_pubkey,
+					},
+				},
+			],
+		}
+	);
+	for (let i = 0; i < accounts.length; i++) {
+		const accountData = accounts[i].account.data;
+		const refundableEscrow = decodeRefundableEscrow(accountData);
+		console.log("RefundableEscrow: ", refundableEscrow);
+	}
+}
+
+function decodeRefundableEscrow(buffer) {
+	const sellerPubkey = buffer.slice(8, 40);
+	const buyerPubkey = buffer.slice(40, 72);
+	const transactionId = buffer.readBigUInt64LE(72);
+	const lamports = buffer.readBigUInt64LE(80);
+	const createAt = buffer.readBigInt64LE(88);
+	const refundDeadline = buffer.readBigInt64LE(96);
+	const isCanceled = buffer.readUInt8(104) !== 0;
+	const userDefinedData = buffer.slice(105, 205).toString('utf-8').replace(/\0/g, '').replace(/^\x07/, '');
+
+	return {
+		seller_pubkey: new PublicKey(sellerPubkey).toString(),
+		buyer_pubkey: new PublicKey(buyerPubkey).toString(),
+		transaction_id: transactionId.toString(),
+		lamports: lamports.toString(),
+		create_at: createAt.toString(),
+		refund_deadline: refundDeadline.toString(),
+		is_canceled: isCanceled,
+		user_defined_data: userDefinedData,
+	};
+}
+
+function sleep(milliseconds) {
+	const start = Date.now();
+	while (Date.now() - start < milliseconds) {
+	}
+}
+
 (async () => {
 	try {
-		// Counterアカウントの作成を試みる
-		await createCounter();
+		await createEscrow();
 	} catch (error) {
-		// エラーが発生した場合、既にCounterアカウントが存在している可能性がある
-		console.error("Error or already exist Counter!!");
+		console.error("Error: ", error);
 	}
+	// try {
+	// 	await refund();
+	// } catch (error) {
+	// 	console.error('Error:', error);
+	// }
+	sleep(12000);
 	try {
-		// Counterアカウントの更新（インクリメント）を試みる
-		await updateCounter();
+		await withdraw();
 	} catch (error) {
-		// エラーが発生した場合のメッセージ
 		console.error('Error:', error);
 	}
 })();
