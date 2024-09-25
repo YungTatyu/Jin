@@ -1,0 +1,18 @@
+/* ボタンの基本スタイル */
+.wallet-adapter-button,
+
+/* ホバー状態 */
+.wallet-adapter-button:not([disabled]):hover,
+.wallet-adapter-button-trigger:not([disabled]):hover {
+  background-color: #ff5722;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 15px;
+  /* サイズを強制的に設定 */
+  width: 190px;
+  height: 32px;
+  line-height: normal;
+  text-align: center; /* テキストを中央揃えに */
+  white-space: nowrap; /* 折り返さない */
+  font-weight: normal; /* 標準の太さにする */
+}

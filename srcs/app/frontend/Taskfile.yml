@@ -13,7 +13,6 @@ tasks:
       - echo -e '{{ .COLOR }}BUILD{{ .RESET }}'
       - '{{ .DEV }}'
 
-
   default:
     cmds:
       - task: build
