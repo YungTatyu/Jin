@@ -44,7 +44,11 @@ pub mod refundable_escrow {
 
         match to.key() {
             key if key == buyer_pubkey => match now {
-                now if (now <= refund_deadline) => transfer_lamports_from_pda(&from, &to, lamports),
+                now if (now <= refund_deadline) => {
+                    transfer_lamports_from_pda(&from, &to, lamports)?;
+                    ctx.accounts.escrow.is_canceled = true;
+                    Ok(())
+                }
                 _ => Err(ErrorCode::RefundError.into()),
             },
             key if key == seller_pubkey => match now {
