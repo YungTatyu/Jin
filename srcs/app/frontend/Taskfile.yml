@@ -1,0 +1,19 @@
+version: '3'
+
+vars:
+  DEV: 'npx next dev'
+  COLOR: '\033[1;33m'
+  RESET: '\033[0m'
+
+silent: true
+
+tasks:
+  build:
+    cmds:
+      - echo -e '{{ .COLOR }}BUILD{{ .RESET }}'
+      - '{{ .DEV }}'
+
+
+  default:
+    cmds:
+      - task: build
