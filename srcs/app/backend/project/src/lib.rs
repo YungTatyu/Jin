@@ -44,13 +44,14 @@ pub mod refundable_escrow {
         let seller_pubkey = ctx.accounts.escrow.seller_pubkey;
         let buyer_pubkey = ctx.accounts.escrow.buyer_pubkey;
         let refund_deadline = ctx.accounts.escrow.refund_deadline;
+        let now = Clock::get()?.unix_timestamp;
 
         match to.key() {
-            key if key == buyer_pubkey => match Clock::get()?.unix_timestamp {
+            key if key == buyer_pubkey => match now {
                 now if (now <= refund_deadline) => transfer_sol_from_pda(&from, &to, amount),
                 _ => Err(ErrorCode::RefundError.into()),
             },
-            key if key == seller_pubkey => match Clock::get()?.unix_timestamp {
+            key if key == seller_pubkey => match now {
                 now if (refund_deadline < now) => transfer_sol_from_pda(&from, &to, amount),
                 _ => Err(ErrorCode::FundraisingError.into()),
             },
