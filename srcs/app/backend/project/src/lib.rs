@@ -40,22 +40,23 @@ pub mod refundable_escrow {
         let seller_pubkey = ctx.accounts.escrow.seller_pubkey;
         let buyer_pubkey = ctx.accounts.escrow.buyer_pubkey;
         let refund_deadline = ctx.accounts.escrow.refund_deadline;
-        let program_id = ctx.program_id;
         let now = Clock::get()?.unix_timestamp;
+
+        if from.owner != ctx.program_id {
+            return Err(ErrorCode::InvalidAccountError.into());
+        }
 
         match to.key() {
             key if key == buyer_pubkey => match now {
                 now if (now <= refund_deadline) => {
-                    transfer_lamports_from_pda(&from, &to, program_id, lamports)?;
+                    transfer_lamports_from_pda(&from, &to, lamports)?;
                     ctx.accounts.escrow.is_canceled = true;
                     Ok(())
                 }
                 _ => Err(ErrorCode::RefundError.into()),
             },
             key if key == seller_pubkey => match now {
-                now if (refund_deadline < now) => {
-                    transfer_lamports_from_pda(&from, &to, program_id, lamports)
-                }
+                now if (refund_deadline < now) => transfer_lamports_from_pda(&from, &to, lamports),
                 _ => Err(ErrorCode::FundraisingError.into()),
             },
             _ => return Err(ErrorCode::InvalidAccountError.into()),
@@ -76,22 +77,12 @@ fn transfer_lamports_to_pda<'info>(
     }
 }
 
-fn transfer_lamports_from_pda(
-    from: &AccountInfo,
-    to: &AccountInfo,
-    program_id: &Pubkey,
-    lamports: u64,
-) -> Result<()> {
+fn transfer_lamports_from_pda(from: &AccountInfo, to: &AccountInfo, lamports: u64) -> Result<()> {
     let mut from_lamports = from.try_borrow_mut_lamports()?;
     let mut to_lamports = to.try_borrow_mut_lamports()?;
 
-    // Verify that the forwarding account is owned by a smart contractor
-    if from.owner != program_id {
-        return Err(ErrorCode::InvalidAccountError.into());
-    }
-
     // Check whether the expected balance exists in the PDA
-    if **from.try_borrow_lamports()? < lamports {
+    if **from_lamports < lamports {
         return Err(ErrorCode::CashShortageError.into());
     }
 
@@ -126,6 +117,7 @@ pub struct CreateRefundableEscrow<'info> {
 #[derive(Accounts)]
 pub struct SettleLamports<'info> {
     // buyer or seller
+    #[account(mut)]
     requestor: Signer<'info>,
 
     // PDA created by CreateRefundableEscrow
