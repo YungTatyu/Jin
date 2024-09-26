@@ -64,7 +64,7 @@ async function createEscrow() {
 	const transactionId = new anchor.BN(1);
 	const lamports = new anchor.BN(500000);
 	const refundableSeconds = new anchor.BN(10);
-	const userDefinedData = "ABCDEFG";
+	const userDefinedData = "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890";
 	const escrowPDA = await getEscrowPDA(buyerPublicKey, seller.publicKey, transactionId);
 
 	await program.methods
@@ -155,7 +155,7 @@ function decodeRefundableEscrow(buffer) {
 	const createAt = buffer.readBigInt64LE(88);
 	const refundDeadline = buffer.readBigInt64LE(96);
 	const isCanceled = buffer.readUInt8(104) !== 0;
-	const userDefinedData = buffer.slice(105, 205).toString('utf-8').replace(/\0/g, '').replace(/^\x07/, '');
+	const userDefinedData = buffer.slice(109, 209).toString('utf-8');
 
 	return {
 		seller_pubkey: new PublicKey(sellerPubkey).toString(),
@@ -181,15 +181,15 @@ function sleep(milliseconds) {
 	} catch (error) {
 		console.error("Error: ", error);
 	}
-	// try {
-	// 	await refund();
-	// } catch (error) {
-	// 	console.error('Error:', error);
-	// }
-	sleep(12000);
 	try {
-		await withdraw();
+		await refund();
 	} catch (error) {
 		console.error('Error:', error);
 	}
+	// sleep(12000);
+	// try {
+	// 	await withdraw();
+	// } catch (error) {
+	// 	console.error('Error:', error);
+	// }
 })();

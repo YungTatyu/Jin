@@ -4,6 +4,8 @@ use anchor_lang::solana_program::{program::invoke, system_instruction};
 // SolanaのProgram IDを指定
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
+const USER_DEFINED_DATA_SIZE: usize = 100;
+
 #[program]
 pub mod refundable_escrow {
     use super::*;
@@ -24,6 +26,11 @@ pub mod refundable_escrow {
         escrow.create_at = Clock::get()?.unix_timestamp;
         escrow.refund_deadline = escrow.create_at + refundable_seconds;
         escrow.is_canceled = false;
+
+        // user defined data validate
+        if user_defined_data.as_bytes().len() > USER_DEFINED_DATA_SIZE {
+            return Err(ErrorCode::UserDefinedDataTooLarge.into());
+        }
         escrow.user_defined_data = user_defined_data;
 
         // lamports transfer buyer -> RefundableEscrowPDA
@@ -42,6 +49,7 @@ pub mod refundable_escrow {
         let refund_deadline = ctx.accounts.escrow.refund_deadline;
         let now = Clock::get()?.unix_timestamp;
 
+        // EscrowPDA owner is this smart contractor?
         if from.owner != ctx.program_id {
             return Err(ErrorCode::InvalidAccountError.into());
         }
@@ -108,7 +116,7 @@ pub struct CreateRefundableEscrow<'info> {
         ],
         bump,
         payer = buyer,
-        space = 8 + 32 + 32 + 8 + 8 + 8 + 1 + 100,
+        space = 8 + 32 + 32 + 8 + 8 + 8 + 8 + 1 + (4 + USER_DEFINED_DATA_SIZE),
     )]
     escrow: Account<'info, RefundableEscrow>,
     system_program: Program<'info, System>,
@@ -134,7 +142,7 @@ pub struct RefundableEscrow {
     create_at: i64,            // 8 (unix_timestamp)
     refund_deadline: i64,      // 8 (unix_timestamp)
     is_canceled: bool,         // 1
-    user_defined_data: String, // (variable size)
+    user_defined_data: String, // 4 + (variable size)
 }
 
 #[error_code]
@@ -149,4 +157,6 @@ pub enum ErrorCode {
     FundraisingError,
     #[msg("There are not funds available to withdraw.")]
     CashShortageError,
+    #[msg("User defined data size is too large.")]
+    UserDefinedDataTooLarge,
 }
