@@ -138,8 +138,7 @@ pub struct CreateRefundableEscrow<'info> {
         ],
         bump,
         payer = buyer,
-        // Anchor's internal discriminator(8) + RefundableEscrow(32+32+8+8+8+8+1+4+USER_DEFINED_DATA_SIZE)
-        space = 8 + 32 + 32 + 8 + 8 + 8 + 8 + 1 + (4 + USER_DEFINED_DATA_SIZE),
+        space = 8 + RefundableEscrow::LEN,
     )]
     escrow: Account<'info, RefundableEscrow>,
     system_program: Program<'info, System>,
@@ -165,7 +164,11 @@ pub struct RefundableEscrow {
     create_at: i64,            // 8 (unix_timestamp)
     refund_deadline: i64,      // 8 (unix_timestamp)
     is_canceled: bool,         // 1
-    user_defined_data: String, // 4 + (variable size)
+    user_defined_data: String, // 4 + variable_size
+}
+
+impl RefundableEscrow {
+    pub const LEN: usize = 32 + 32 + 8 + 8 + 8 + 8 + 1 + 4 + USER_DEFINED_DATA_SIZE;
 }
 
 #[error_code]

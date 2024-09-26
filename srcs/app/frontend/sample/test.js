@@ -131,7 +131,7 @@ async function decodeRefundableEscrow(buffer) {
 	const createAt = buffer.readBigInt64LE(88);
 	const refundDeadline = buffer.readBigInt64LE(96);
 	const isCanceled = buffer.readUInt8(104) !== 0;
-	const userDefinedData = buffer.slice(109, 209).toString('utf-8');
+	const userDefinedData = buffer.slice(109).toString('utf-8');
 
 	return {
 		seller_pubkey: new PublicKey(sellerPubkey).toString(),
