@@ -10,9 +10,11 @@ import styles from '../../styles/Header/Header.module.css';
 interface HeaderProps {
   isBuyer: boolean;
   onBuyerSellerSwitch: (buyer: boolean) => void;
+  connected: boolean;
+  publicKey: PublicKey;
 }
 
-const Header: React.FC<HeaderProps> = ({ isBuyer, onBuyerSellerSwitch }) => {
+const Header: React.FC<HeaderProps> = ({ isBuyer, onBuyerSellerSwitch, connected, publicKey }) => {
 
   return (
     <header className={styles.header}>
@@ -23,7 +25,10 @@ const Header: React.FC<HeaderProps> = ({ isBuyer, onBuyerSellerSwitch }) => {
           onSwitch={onBuyerSellerSwitch}
         />
         {isBuyer ? <AddNewTransactionButton /> : <WithdrawAllButton />}
-        <ConnectWalletButton />
+        <ConnectWalletButton
+          connected={connected}
+          publicKey={publicKey}
+        />
       </div>
     </header>
   );
