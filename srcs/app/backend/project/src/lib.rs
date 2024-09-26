@@ -4,7 +4,8 @@ use anchor_lang::solana_program::{program::invoke, system_instruction};
 // SolanaのProgram IDを指定
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
-const USER_DEFINED_DATA_SIZE: usize = 100;
+const USER_DEFINED_DATA_SIZE: usize = 100; // Max 100 Bytes
+const MAX_REFUNDABLE_SECONDS: i64 = 60 * 60 * 24 * 365; // Max 1Year
 
 #[program]
 pub mod refundable_escrow {
@@ -23,8 +24,6 @@ pub mod refundable_escrow {
         escrow.buyer_pubkey = ctx.accounts.buyer.key();
         escrow.transaction_id = transaction_id;
         escrow.lamports = lamports;
-        escrow.create_at = Clock::get()?.unix_timestamp;
-        escrow.refund_deadline = escrow.create_at + refundable_seconds;
         escrow.is_canceled = false;
 
         // user defined data validate
@@ -32,6 +31,13 @@ pub mod refundable_escrow {
             return Err(ErrorCode::UserDefinedDataTooLarge.into());
         }
         escrow.user_defined_data = user_defined_data;
+
+        // check (0 < refundable_seconds <= MAX_REFUNDABLE_SECONDS)
+        if refundable_seconds <= 0 || refundable_seconds > MAX_REFUNDABLE_SECONDS {
+            return Err(ErrorCode::RefundableSecondsError.into());
+        }
+        escrow.create_at = Clock::get()?.unix_timestamp;
+        escrow.refund_deadline = escrow.create_at + refundable_seconds;
 
         // lamports transfer buyer -> RefundableEscrowPDA
         let from = ctx.accounts.buyer.to_account_info();
@@ -159,4 +165,6 @@ pub enum ErrorCode {
     CashShortageError,
     #[msg("User defined data size is too large.")]
     UserDefinedDataTooLarge,
+    #[msg("Refundable seconds is invalid.")]
+    RefundableSecondsError,
 }
