@@ -15,7 +15,7 @@ pub mod refundable_escrow {
     pub fn create_refundable_escrow(
         ctx: Context<CreateRefundableEscrow>,
         transaction_id: u64,
-        lamports: u64,
+        amount_lamports: u64,
         refundable_seconds: i64,
         user_defined_data: String,
     ) -> Result<()> {
@@ -24,7 +24,7 @@ pub mod refundable_escrow {
         escrow.seller_pubkey = ctx.accounts.seller.key();
         escrow.buyer_pubkey = ctx.accounts.buyer.key();
         escrow.transaction_id = transaction_id;
-        escrow.lamports = lamports;
+        escrow.amount_lamports = amount_lamports;
         escrow.is_canceled = false;
 
         // user defined data validate
@@ -44,14 +44,14 @@ pub mod refundable_escrow {
         let from = ctx.accounts.buyer.to_account_info();
         let to = ctx.accounts.escrow.to_account_info();
         let system_program = ctx.accounts.system_program.to_account_info();
-        transfer_lamports_to_pda(from, to, system_program, lamports)
+        transfer_lamports_to_pda(from, to, system_program, amount_lamports)
     }
 
     // Refunds(Buyer) or Withdrawals(Seller)
     pub fn settle_lamports(ctx: Context<SettleLamports>) -> Result<()> {
         let from = ctx.accounts.escrow.to_account_info();
         let to = ctx.accounts.requestor.to_account_info();
-        let lamports = ctx.accounts.escrow.lamports;
+        let amount_lamports = ctx.accounts.escrow.amount_lamports;
         let seller_pubkey = ctx.accounts.escrow.seller_pubkey;
         let buyer_pubkey = ctx.accounts.escrow.buyer_pubkey;
         let refund_deadline = ctx.accounts.escrow.refund_deadline;
@@ -66,7 +66,7 @@ pub mod refundable_escrow {
             key if key == buyer_pubkey => match now {
                 // Buyer and within the refund period
                 now if (now <= refund_deadline) => {
-                    transfer_lamports_from_pda(&from, &to, lamports)?;
+                    transfer_lamports_from_pda(&from, &to, amount_lamports)?;
                     ctx.accounts.escrow.is_canceled = true;
                     Ok(())
                 }
@@ -75,7 +75,9 @@ pub mod refundable_escrow {
             },
             key if key == seller_pubkey => match now {
                 // Seller and outside the refund period
-                now if (refund_deadline < now) => transfer_lamports_from_pda(&from, &to, lamports),
+                now if (refund_deadline < now) => {
+                    transfer_lamports_from_pda(&from, &to, amount_lamports)
+                }
                 // Withdrawals not possible due to refund period
                 _ => Err(ErrorCode::FundraisingError.into()),
             },
@@ -90,9 +92,9 @@ fn transfer_lamports_to_pda<'info>(
     from: AccountInfo<'info>,
     to: AccountInfo<'info>,
     system_program: AccountInfo<'info>,
-    lamports: u64,
+    amount_lamports: u64,
 ) -> Result<()> {
-    let ix = system_instruction::transfer(&from.key(), &to.key(), lamports);
+    let ix = system_instruction::transfer(&from.key(), &to.key(), amount_lamports);
     match invoke(&ix, &[from, to, system_program]) {
         Ok(_) => Ok(()),
         Err(_) => Err(ErrorCode::BuyerUnderfundedError.into()),
@@ -100,17 +102,21 @@ fn transfer_lamports_to_pda<'info>(
 }
 
 // transfer from(PDA) -> to(UserAccount)
-fn transfer_lamports_from_pda(from: &AccountInfo, to: &AccountInfo, lamports: u64) -> Result<()> {
+fn transfer_lamports_from_pda(
+    from: &AccountInfo,
+    to: &AccountInfo,
+    amount_lamports: u64,
+) -> Result<()> {
     let mut from_lamports = from.try_borrow_mut_lamports()?;
     let mut to_lamports = to.try_borrow_mut_lamports()?;
 
     // Check whether the expected balance exists in the PDA
-    if **from_lamports < lamports {
+    if **from_lamports < amount_lamports {
         return Err(ErrorCode::CashShortageError.into());
     }
 
-    **from_lamports -= lamports;
-    **to_lamports += lamports;
+    **from_lamports -= amount_lamports;
+    **to_lamports += amount_lamports;
     Ok(())
 }
 
@@ -155,7 +161,7 @@ pub struct RefundableEscrow {
     seller_pubkey: Pubkey,     // 32
     buyer_pubkey: Pubkey,      // 32
     transaction_id: u64,       // 8
-    lamports: u64,             // 8
+    amount_lamports: u64,      // 8
     create_at: i64,            // 8 (unix_timestamp)
     refund_deadline: i64,      // 8 (unix_timestamp)
     is_canceled: bool,         // 1

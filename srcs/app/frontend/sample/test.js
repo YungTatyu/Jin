@@ -57,11 +57,11 @@ async function getEscrowPDA(buyer_pubkey, seller_pubkey, transactionId) {
 }
 
 // スマートコントラクタのAPI1を叩き、PDA作成・PDAへの送金を実行
-async function createEscrow(program, buyerPublicKey, seller, transactionId, lamports, refundableSeconds, userDefinedData) {
+async function createEscrow(program, buyerPublicKey, seller, transactionId, amountLamports, refundableSeconds, userDefinedData) {
 	const escrowPDA = await getEscrowPDA(buyerPublicKey, seller.publicKey, transactionId);
 
 	await program.methods
-		.createRefundableEscrow(transactionId, lamports, refundableSeconds, userDefinedData)
+		.createRefundableEscrow(transactionId, amountLamports, refundableSeconds, userDefinedData)
 		.accounts({
 			buyer: buyerPublicKey,
 			seller: seller.publicKey,
@@ -127,7 +127,7 @@ async function decodeRefundableEscrow(buffer) {
 	const sellerPubkey = buffer.slice(8, 40);
 	const buyerPubkey = buffer.slice(40, 72);
 	const transactionId = buffer.readBigUInt64LE(72);
-	const lamports = buffer.readBigUInt64LE(80);
+	const amountLamports = buffer.readBigUInt64LE(80);
 	const createAt = buffer.readBigInt64LE(88);
 	const refundDeadline = buffer.readBigInt64LE(96);
 	const isCanceled = buffer.readUInt8(104) !== 0;
@@ -137,7 +137,7 @@ async function decodeRefundableEscrow(buffer) {
 		seller_pubkey: new PublicKey(sellerPubkey).toString(),
 		buyer_pubkey: new PublicKey(buyerPubkey).toString(),
 		transaction_id: transactionId.toString(),
-		lamports: lamports.toString(),
+		amount_lamports: amountLamports.toString(),
 		create_at: createAt.toString(),
 		refund_deadline: refundDeadline.toString(),
 		is_canceled: isCanceled,
@@ -158,7 +158,7 @@ function sleep(milliseconds) {
 	const program = new anchor.Program(IDL, PROGRAM_ID, provider);
 	const buyerPublicKey = provider.wallet.publicKey;
 	const seller = new anchor.Wallet(loadWalletKey(SELLER_FILE_PATH));
-	const lamports = new anchor.BN(10000000000); // 10SOL
+	const amountLamports = new anchor.BN(10000000000); // 10SOL
 	const refundableSeconds = new anchor.BN(SECONDS);
 	const userDefinedData = "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890";
 
@@ -168,7 +168,7 @@ function sleep(milliseconds) {
 	// Escrowを作成、返金期間内に買い手が返金を要求
 	try {
 		const transactionId1 = new anchor.BN(1);
-		await createEscrow(program, buyerPublicKey, seller, transactionId1, lamports, refundableSeconds, userDefinedData);
+		await createEscrow(program, buyerPublicKey, seller, transactionId1, amountLamports, refundableSeconds, userDefinedData);
 		await refund(program, buyerPublicKey, seller, transactionId1);
 		await findPDA(buyerPublicKey);
 	} catch (error) {
@@ -179,7 +179,7 @@ function sleep(milliseconds) {
 	// Escrowを作成、返金期間+1秒間sleepし、返金期間外に売り手が払出を要求
 	try {
 		const transactionId2 = new anchor.BN(2);
-		await createEscrow(program, buyerPublicKey, seller, transactionId2, lamports, refundableSeconds, userDefinedData);
+		await createEscrow(program, buyerPublicKey, seller, transactionId2, amountLamports, refundableSeconds, userDefinedData);
 		sleep((SECONDS + 2) * 1000);
 		await withdraw(program, buyerPublicKey, seller, transactionId2);
 		await findPDA(buyerPublicKey);
