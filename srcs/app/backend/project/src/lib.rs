@@ -80,7 +80,7 @@ pub mod refundable_escrow {
                 _ => Err(ErrorCode::FundraisingError.into()),
             },
             // The account is neither buyer nor seller
-            _ => return Err(ErrorCode::InvalidAccountError.into()),
+            _ => Err(ErrorCode::InvalidAccountError.into()),
         }
     }
 }
