@@ -7,12 +7,12 @@ import WithdrawAllButton from './WithdrawAllButton';
 import ConnectWalletButton from './ConnectWalletButton';
 import styles from '../../styles/Header/Header.module.css';
 
-const Header: React.FC = () => {
-  const [isBuyer, setIsBuyer] = useState(true);
+interface HeaderProps {
+  isBuyer: boolean;
+  onBuyerSellerSwitch: (buyer: boolean) => void;
+}
 
-  const handleBuyerSellerSwitch = (buyer: boolean) => {
-    setIsBuyer(buyer);
-  };
+const Header: React.FC<HeaderProps> = ({ isBuyer, onBuyerSellerSwitch }) => {
 
   return (
     <header className={styles.header}>
@@ -20,7 +20,7 @@ const Header: React.FC = () => {
       <div className={styles.rightSection}>
         <BuyerSellerSwitch
           isBuyer={isBuyer}
-          onSwitch={handleBuyerSellerSwitch}
+          onSwitch={onBuyerSellerSwitch}
         />
         {isBuyer ? <AddNewTransactionButton /> : <WithdrawAllButton />}
         <ConnectWalletButton />
