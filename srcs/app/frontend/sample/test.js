@@ -1,10 +1,9 @@
 const anchor = require('@project-serum/anchor');
 const { Connection, Keypair, PublicKey, SystemProgram } = require('@solana/web3.js');
-const { Wallet } = require('@project-serum/anchor');
 const fs = require('fs');
 
 // SolanaのProgram IDを指定
-const PROGRAM_ID = new PublicKey('FuPCcrAxKT4QKQMcdYf3e65DReF7DV1C8sW8TowcSYMN');
+const PROGRAM_ID = new PublicKey('Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS');
 
 // SolanaプログラムのIDL(Interface Definition Language)を読み込む
 const IDL = require('../../target/idl/refundable_escrow.json')
@@ -16,6 +15,9 @@ const SELLER_FILE_PATH = '/root/.config/solana/id2.json';
 // 使用するネットワーク
 const DEPLOY_NET = 'http://127.0.0.1:8899';
 
+// 返金可能秒数
+const SECONDS = 10;
+
 // ウォレットの秘密鍵をJSONファイルから読み込む関数
 function loadWalletKey(filePath) {
 	const secretKeyString = fs.readFileSync(filePath, 'utf-8'); // 秘密鍵のJSONファイルを読み込む
@@ -25,10 +27,7 @@ function loadWalletKey(filePath) {
 
 // Providerをセットアップする関数(Solanaネットワークとの接続とウォレットのセットアップ)
 async function setupProvider() {
-	// Solanaのローカルネットワークに接続
 	const connection = new Connection(DEPLOY_NET, 'confirmed');
-
-	// ウォレットをロード
 	const wallet = new anchor.Wallet(loadWalletKey(WALLET_FILE_PATH));
 
 	// Anchorのプロバイダーを作成(接続とウォレットを含む)
@@ -38,8 +37,9 @@ async function setupProvider() {
 	return provider;
 }
 
-// CounterアカウントのPDA(Program Derived Address)を取得する関数
+// RefundableEscrowアカウントのPDA(Program Derived Address)を取得する関数
 async function getEscrowPDA(buyer_pubkey, seller_pubkey, transactionId) {
+	// バイト列に変換
 	const transactionIdBuffer = Buffer.alloc(8);
 	transactionIdBuffer.writeBigInt64LE(BigInt(transactionId.toNumber()), 0);
 
@@ -56,15 +56,8 @@ async function getEscrowPDA(buyer_pubkey, seller_pubkey, transactionId) {
 	return counterPDA;
 }
 
-async function createEscrow() {
-	const provider = await setupProvider();
-	const program = new anchor.Program(IDL, PROGRAM_ID, provider);
-	const buyerPublicKey = provider.wallet.publicKey;
-	const seller = new anchor.Wallet(loadWalletKey(SELLER_FILE_PATH));
-	const transactionId = new anchor.BN(1);
-	const lamports = new anchor.BN(500000);
-	const refundableSeconds = new anchor.BN(10);
-	const userDefinedData = "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890";
+// スマートコントラクタのAPI1を叩き、PDA作成・PDAへの送金を実行
+async function createEscrow(program, buyerPublicKey, seller, transactionId, lamports, refundableSeconds, userDefinedData) {
 	const escrowPDA = await getEscrowPDA(buyerPublicKey, seller.publicKey, transactionId);
 
 	await program.methods
@@ -76,18 +69,10 @@ async function createEscrow() {
 			systemProgram: SystemProgram.programId,
 		})
 		.rpc();
-
-	console.log('Buyer  Balance:', await provider.connection.getBalance(buyerPublicKey));
-	console.log('Seller Balance:', await provider.connection.getBalance(seller.publicKey));
-	findPDA(buyerPublicKey);
 }
 
-async function refund() {
-	const provider = await setupProvider();
-	const program = new anchor.Program(IDL, PROGRAM_ID, provider);
-	const buyerPublicKey = provider.wallet.publicKey;
-	const seller = new anchor.Wallet(loadWalletKey(SELLER_FILE_PATH));
-	const transactionId = new anchor.BN(1);
+// スマートコントラクタのAPI2を買い手側が叩く
+async function refund(program, buyerPublicKey, seller, transactionId) {
 	const escrowPDA = await getEscrowPDA(buyerPublicKey, seller.publicKey, transactionId);
 
 	await program.methods
@@ -97,18 +82,10 @@ async function refund() {
 			escrow: escrowPDA,
 		})
 		.rpc();
-
-	console.log('Buyer  Balance:', await provider.connection.getBalance(buyerPublicKey));
-	console.log('Seller Balance:', await provider.connection.getBalance(seller.publicKey));
-	findPDA(buyerPublicKey);
 }
 
-async function withdraw() {
-	const provider = await setupProvider();
-	const program = new anchor.Program(IDL, PROGRAM_ID, provider);
-	const buyerPublicKey = provider.wallet.publicKey;
-	const seller = new anchor.Wallet(loadWalletKey(SELLER_FILE_PATH));
-	const transactionId = new anchor.BN(1);
+// スマートコントラクタのAPI2を売り手側が叩く
+async function withdraw(program, buyerPublicKey, seller, transactionId) {
 	const escrowPDA = await getEscrowPDA(buyerPublicKey, seller.publicKey, transactionId);
 
 	await program.methods
@@ -119,12 +96,10 @@ async function withdraw() {
 		})
 		.signers([seller.payer])
 		.rpc();
-
-	console.log('Buyer  Balance:', await provider.connection.getBalance(buyerPublicKey));
-	console.log('Seller Balance:', await provider.connection.getBalance(seller.publicKey));
-	findPDA(buyerPublicKey);
 }
 
+// スマートコントラクタに紐づいたPDAの中でbuyerの公開鍵が一致するものを探して表示
+// TODO 引数と戻り値を変えればもう少し汎用的な関数にできる
 async function findPDA(buyer_pubkey) {
 	const connection = new Connection(DEPLOY_NET, 'confirmed');
 	const accounts = await connection.getParsedProgramAccounts(
@@ -147,7 +122,8 @@ async function findPDA(buyer_pubkey) {
 	}
 }
 
-function decodeRefundableEscrow(buffer) {
+// RefundableEscrow構造体のspaceを用いてバイト列をデシリアライズ
+async function decodeRefundableEscrow(buffer) {
 	const sellerPubkey = buffer.slice(8, 40);
 	const buyerPubkey = buffer.slice(40, 72);
 	const transactionId = buffer.readBigUInt64LE(72);
@@ -169,6 +145,7 @@ function decodeRefundableEscrow(buffer) {
 	};
 }
 
+// ブロッキングするsleep関数(引数はミリ秒単位)
 function sleep(milliseconds) {
 	const start = Date.now();
 	while (Date.now() - start < milliseconds) {
@@ -176,20 +153,39 @@ function sleep(milliseconds) {
 }
 
 (async () => {
+	// 関数内で使用する変数の準備
+	const provider = await setupProvider();
+	const program = new anchor.Program(IDL, PROGRAM_ID, provider);
+	const buyerPublicKey = provider.wallet.publicKey;
+	const seller = new anchor.Wallet(loadWalletKey(SELLER_FILE_PATH));
+	const lamports = new anchor.BN(10000000000); // 10SOL
+	const refundableSeconds = new anchor.BN(SECONDS);
+	const userDefinedData = "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890";
+
+	console.log("===== Test =====");
+	console.log('Buyer  Balance:', await provider.connection.getBalance(buyerPublicKey));
+	console.log('Seller Balance:', await provider.connection.getBalance(seller.publicKey));
+	// Escrowを作成、返金期間内に買い手が返金を要求
 	try {
-		await createEscrow();
+		const transactionId1 = new anchor.BN(1);
+		await createEscrow(program, buyerPublicKey, seller, transactionId1, lamports, refundableSeconds, userDefinedData);
+		await refund(program, buyerPublicKey, seller, transactionId1);
+		await findPDA(buyerPublicKey);
 	} catch (error) {
-		console.error("Error: ", error);
+		console.error(error);
 	}
+	console.log('Buyer  Balance:', await provider.connection.getBalance(buyerPublicKey));
+	console.log('Seller Balance:', await provider.connection.getBalance(seller.publicKey));
+	// Escrowを作成、返金期間+1秒間sleepし、返金期間外に売り手が払出を要求
 	try {
-		await refund();
+		const transactionId2 = new anchor.BN(2);
+		await createEscrow(program, buyerPublicKey, seller, transactionId2, lamports, refundableSeconds, userDefinedData);
+		sleep((SECONDS + 2) * 1000);
+		await withdraw(program, buyerPublicKey, seller, transactionId2);
+		await findPDA(buyerPublicKey);
 	} catch (error) {
-		console.error('Error:', error);
+		console.error(error);
 	}
-	// sleep(12000);
-	// try {
-	// 	await withdraw();
-	// } catch (error) {
-	// 	console.error('Error:', error);
-	// }
+	console.log('Buyer  Balance:', await provider.connection.getBalance(buyerPublicKey));
+	console.log('Seller Balance:', await provider.connection.getBalance(seller.publicKey));
 })();
