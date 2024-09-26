@@ -1,16 +1,17 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::{program::invoke, system_instruction};
 
-// SolanaのProgram IDを指定
+// Specify program ID
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
-const USER_DEFINED_DATA_SIZE: usize = 100; // Max 100 Bytes
-const MAX_REFUNDABLE_SECONDS: i64 = 60 * 60 * 24 * 365; // Max 1Year
+const USER_DEFINED_DATA_SIZE: usize = 100;
+const MAX_REFUNDABLE_SECONDS: i64 = 60 * 60 * 24 * 365;
 
 #[program]
 pub mod refundable_escrow {
     use super::*;
 
+    // Initialize RefundableEscrowPDA and transfer lamports from buyer to PDA
     pub fn create_refundable_escrow(
         ctx: Context<CreateRefundableEscrow>,
         transaction_id: u64,
@@ -46,6 +47,7 @@ pub mod refundable_escrow {
         transfer_lamports_to_pda(from, to, system_program, lamports)
     }
 
+    // Refunds(Buyer) or Withdrawals(Seller)
     pub fn settle_lamports(ctx: Context<SettleLamports>) -> Result<()> {
         let from = ctx.accounts.escrow.to_account_info();
         let to = ctx.accounts.requestor.to_account_info();
@@ -55,29 +57,35 @@ pub mod refundable_escrow {
         let refund_deadline = ctx.accounts.escrow.refund_deadline;
         let now = Clock::get()?.unix_timestamp;
 
-        // EscrowPDA owner is this smart contractor?
+        // check RefundableEscrowPDA owner is this smart contractor?
         if from.owner != ctx.program_id {
             return Err(ErrorCode::InvalidAccountError.into());
         }
 
         match to.key() {
             key if key == buyer_pubkey => match now {
+                // Buyer and within the refund period
                 now if (now <= refund_deadline) => {
                     transfer_lamports_from_pda(&from, &to, lamports)?;
                     ctx.accounts.escrow.is_canceled = true;
                     Ok(())
                 }
+                // Refund could not be made because it was outside the refund period
                 _ => Err(ErrorCode::RefundError.into()),
             },
             key if key == seller_pubkey => match now {
+                // Seller and outside the refund period
                 now if (refund_deadline < now) => transfer_lamports_from_pda(&from, &to, lamports),
+                // Withdrawals not possible due to refund period
                 _ => Err(ErrorCode::FundraisingError.into()),
             },
+            // The account is neither buyer nor seller
             _ => return Err(ErrorCode::InvalidAccountError.into()),
         }
     }
 }
 
+// transfer from(UserAccount) -> to(PDA)
 fn transfer_lamports_to_pda<'info>(
     from: AccountInfo<'info>,
     to: AccountInfo<'info>,
@@ -91,6 +99,7 @@ fn transfer_lamports_to_pda<'info>(
     }
 }
 
+// transfer from(PDA) -> to(UserAccount)
 fn transfer_lamports_from_pda(from: &AccountInfo, to: &AccountInfo, lamports: u64) -> Result<()> {
     let mut from_lamports = from.try_borrow_mut_lamports()?;
     let mut to_lamports = to.try_borrow_mut_lamports()?;
@@ -115,6 +124,7 @@ pub struct CreateRefundableEscrow<'info> {
 
     #[account(
         init,
+        // PDA is derived from buyer, seller and transaction ID
         seeds = [
             buyer.key().as_ref(),
             seller.key().as_ref(),
@@ -122,6 +132,7 @@ pub struct CreateRefundableEscrow<'info> {
         ],
         bump,
         payer = buyer,
+        // Anchor's internal discriminator(8) + RefundableEscrow(32+32+8+8+8+8+1+4+USER_DEFINED_DATA_SIZE)
         space = 8 + 32 + 32 + 8 + 8 + 8 + 8 + 1 + (4 + USER_DEFINED_DATA_SIZE),
     )]
     escrow: Account<'info, RefundableEscrow>,
@@ -130,7 +141,7 @@ pub struct CreateRefundableEscrow<'info> {
 
 #[derive(Accounts)]
 pub struct SettleLamports<'info> {
-    // buyer or seller
+    // Buyer or Seller
     #[account(mut)]
     requestor: Signer<'info>,
 
