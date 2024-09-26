@@ -26,3 +26,8 @@ start-dev:
 start-prod:
 	cd project/app && \
 	$(NEXT_START)
+
+backend-test: deploy build
+	solana-keygen new --no-bip39-passphrase -o /root/.config/solana/id2.json && \
+	solana airdrop 1 /root/.config/solana/id2.json && \
+	node /usr/src/project/app/sample/test.js
