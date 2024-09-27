@@ -184,7 +184,7 @@ pub enum ErrorCode {
     RefundError,
     #[msg("Withdrawals are not available during thr refund period.")]
     FundraisingError,
-    #[msg("There are not funds available to withdraw.")]
+    #[msg("There are no funds available to withdraw.")]
     CashShortageError,
     #[msg("User defined data size is too large.")]
     UserDefinedDataTooLarge,
