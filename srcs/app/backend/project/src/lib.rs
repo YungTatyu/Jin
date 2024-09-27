@@ -138,6 +138,9 @@ pub struct CreateRefundableEscrow<'info> {
         ],
         bump,
         payer = buyer,
+        // In addition to the space for the account data,
+        // you have to add 8 to the space constraint for Anchor's internal discriminator.
+        // https://www.anchor-lang.com/docs/space
         space = 8 + RefundableEscrow::LEN,
     )]
     escrow: Account<'info, RefundableEscrow>,
