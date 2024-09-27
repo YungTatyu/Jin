@@ -152,7 +152,7 @@ function sleep(milliseconds) {
 	}
 }
 
-(async () => {
+async function main() {
 	// 関数内で使用する変数の準備
 	const provider = await setupProvider();
 	const program = new anchor.Program(IDL, PROGRAM_ID, provider);
@@ -188,4 +188,6 @@ function sleep(milliseconds) {
 	}
 	console.log('Buyer  Balance:', await provider.connection.getBalance(buyerPublicKey));
 	console.log('Seller Balance:', await provider.connection.getBalance(seller.publicKey));
-})();
+}
+
+main().catch(console.error);
