@@ -1,24 +1,24 @@
 .header {
-    background-color: #FAF2F0;
-    display: flex;
-    align-items: center;
-    padding: 10px 16px;
-    height: 90px;
-    border-bottom: 1px solid #e0e0e0;
-  }
-  
-  .backButton {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .backIcon {
-    width: 80px;
-    height: 80px;
-    color: #333333;
-  }
+  background-color: #faf2f0;
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  height: 90px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.backIcon {
+  width: 80px;
+  height: 80px;
+  color: #333333;
+}

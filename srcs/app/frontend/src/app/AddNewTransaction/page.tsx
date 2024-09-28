@@ -7,8 +7,8 @@ import Header from '../components/AddNewTransaction/Header';
 const AddNewTransaction: React.FC = () => {
   return (
     <>
-      <Header/>
-      <Body/>
+      <Header />
+      <Body />
     </>
   );
 };

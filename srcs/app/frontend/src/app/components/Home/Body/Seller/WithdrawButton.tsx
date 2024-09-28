@@ -4,14 +4,16 @@ srcs/app/frontend/src/app/components/Body/Seller/WithdrawButton.tsx
 */
 
 import React from 'react';
-import styles from '../../../../styles/Body/Seller/WithdrawButton.module.css'
+import styles from '../../../../styles/Body/Seller/WithdrawButton.module.css';
 
 const WithdrawButton = () => {
   const onClick = () => {
-    alert("Hello, world!");
+    alert('Hello, world!');
   };
   return (
-    <button className={styles.ButtonContainer} onClick={onClick}>withdraw</button>
+    <button className={styles.ButtonContainer} onClick={onClick}>
+      withdraw
+    </button>
   );
 };
 

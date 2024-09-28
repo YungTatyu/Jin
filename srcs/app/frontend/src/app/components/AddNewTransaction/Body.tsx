@@ -7,25 +7,27 @@ const Body: React.FC = () => {
       <div className={styles.frame30}>
         <div className={styles.frame27}>
           <h1 className={styles.title}>Add New Transaction</h1>
-          
+
           <div className={styles.inputGroup}>
             <label htmlFor="sellerAddress">Enter seller address</label>
             <input type="text" id="sellerAddress" className={styles.input} />
           </div>
-          
+
           <div className={styles.inputGroup}>
             <label htmlFor="amount">Enter amount</label>
             <input type="text" id="amount" className={styles.input} />
           </div>
-          
+
           <div className={styles.inputGroup}>
             <label htmlFor="refundDeadline">
               Enter refund deadline
-              <span className={styles.sublabel}>(You can enter 1 to 360 days)</span>
+              <span className={styles.sublabel}>
+                (You can enter 1 to 360 days)
+              </span>
             </label>
             <input type="text" id="refundDeadline" className={styles.input} />
           </div>
-          
+
           <div className={styles.inputGroup}>
             <label htmlFor="transactionInfo">
               transaction info
@@ -34,7 +36,7 @@ const Body: React.FC = () => {
             <input type="text" id="transactionInfo" className={styles.input} />
           </div>
         </div>
-        
+
         <button className={styles.okButton}>OK</button>
       </div>
     </div>

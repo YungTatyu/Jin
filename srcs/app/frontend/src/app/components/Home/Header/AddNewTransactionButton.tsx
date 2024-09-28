@@ -9,7 +9,7 @@ const AddNewTransactionButton: React.FC = () => {
   const router = useRouter();
   const handleClick = () => {
     if (connected) {
-      router.push('/AddNewTransaction')
+      router.push('/AddNewTransaction');
     }
   };
   return (

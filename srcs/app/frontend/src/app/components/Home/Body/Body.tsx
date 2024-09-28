@@ -1,5 +1,5 @@
 // components/Body/Body.tsx
-'use client'
+'use client';
 import React from 'react';
 import styles from '../../../styles/Body/Body.module.css'; // スタイルを適用する場合
 import ClaimsList from './Buyer/ClaimsList';
@@ -12,8 +12,8 @@ interface BodyProps {
   isBuyer: boolean;
 }
 
-const Body: React.FC<BodyProps> = ({ isBuyer}) => {
-  const { connected, publicKey } = useWallet();
+const Body: React.FC<BodyProps> = ({ isBuyer }) => {
+  const { connected } = useWallet();
 
   return (
     <div className={styles.bodyContainer}>
@@ -32,8 +32,8 @@ const Body: React.FC<BodyProps> = ({ isBuyer}) => {
         <div>
           {connected ? (
             <>
-              <ClaimedRightsList/>
-              <ClaimsExpiredList/>
+              <ClaimedRightsList />
+              <ClaimsExpiredList />
             </>
           ) : (
             <p>Please connect your wallet to access seller features.</p>

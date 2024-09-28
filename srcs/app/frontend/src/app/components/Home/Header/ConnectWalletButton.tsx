@@ -2,7 +2,11 @@
 
 import React from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import {WalletModalButton, WalletConnectButton, WalletDisconnectButton } from '@solana/wallet-adapter-react-ui';
+import {
+  WalletModalButton,
+  WalletConnectButton,
+  WalletDisconnectButton,
+} from '@solana/wallet-adapter-react-ui';
 
 const ConnectWalletButton: React.FC = () => {
   //const { connected, disconnect, publicKey } = useWallet();
@@ -11,17 +15,11 @@ const ConnectWalletButton: React.FC = () => {
   return (
     <div>
       {connected ? (
-        <WalletDisconnectButton>
-          Disconnect The Wallet
-        </WalletDisconnectButton>
+        <WalletDisconnectButton>Disconnect The Wallet</WalletDisconnectButton>
       ) : wallet ? (
-        <WalletConnectButton>
-          Connect The Wallet
-        </WalletConnectButton>
-      ): (
-        <WalletModalButton>
-          Select The Wallet
-        </WalletModalButton>
+        <WalletConnectButton>Connect The Wallet</WalletConnectButton>
+      ) : (
+        <WalletModalButton>Select The Wallet</WalletModalButton>
       )}
     </div>
   );

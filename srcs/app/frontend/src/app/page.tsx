@@ -14,15 +14,10 @@ export default function Home() {
 
   return (
     <main>
-      <Header 
-        isBuyer={isBuyer} 
-        onBuyerSellerSwitch={handleBuyerSellerSwitch} 
-      />
+      <Header isBuyer={isBuyer} onBuyerSellerSwitch={handleBuyerSellerSwitch} />
       {/* ページの残りの部分 */}
-      <Body
-        isBuyer={isBuyer} 
-      />
-      <Footer/>
+      <Body isBuyer={isBuyer} />
+      <Footer />
     </main>
   );
 }

@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+
 import JinLogo from './JinLogo';
 import BuyerSellerSwitch from './BuyerSellerSwitch';
 import AddNewTransactionButton from './AddNewTransactionButton';
@@ -13,17 +13,13 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ isBuyer, onBuyerSellerSwitch }) => {
-
   return (
     <header className={styles.header}>
       <JinLogo />
       <div className={styles.rightSection}>
-        <BuyerSellerSwitch
-          isBuyer={isBuyer}
-          onSwitch={onBuyerSellerSwitch}
-        />
+        <BuyerSellerSwitch isBuyer={isBuyer} onSwitch={onBuyerSellerSwitch} />
         {isBuyer ? <AddNewTransactionButton /> : <WithdrawAllButton />}
-        <ConnectWalletButton/>
+        <ConnectWalletButton />
       </div>
     </header>
   );

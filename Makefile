@@ -11,7 +11,7 @@ up:
 	${DOCKER_COMPOSE} -f ${COMPOSE_YML_PATH} up -d --build app
 
 down:
-	${DOCKER_COMPOSE} -f ${COMPOSE_YML_PATH} down --rmi all --volumes --remove-orphans
+	${DOCKER_COMPOSE} -f ${COMPOSE_YML_PATH} down -v --rmi all --volumes --remove-orphans
 
 re: down up
 
@@ -23,7 +23,9 @@ fmt:
 	docker cp lint-container:frontend/src $(APP_DIR)/frontend/src/
 	docker cp lint-container:backend/src $(APP_DIR)/backend/project/src/
 	docker rm lint-container
+	${MAKE} down
 
 lint:
 	@echo "LINT"
 	${DOCKER_COMPOSE} -f ${COMPOSE_YML_PATH} run --rm lint-format lint
+	${MAKE} down
