@@ -55,7 +55,10 @@ RUN npm install
 RUN npm install @solana/web3.js @project-serum/anchor
 
 # Copy back-end source code
-COPY ./backend/ /usr/src/project/programs/
+COPY ./backend/project/ /usr/src/project/programs/project/
+COPY ./backend/Anchor.toml /usr/src/project/Anchor.toml
+RUN rm /usr/src/project/tests/project.ts
+COPY ./backend/tests/ /usr/src/project/tests/
 
 # Build by anchor
 WORKDIR /usr/src/project/
