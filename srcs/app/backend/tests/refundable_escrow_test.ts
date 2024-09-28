@@ -2,6 +2,7 @@ import { LAMPORTS_PER_SOL, Keypair } from "@solana/web3.js";
 import * as anchor from "@coral-xyz/anchor";
 import { BN } from "@coral-xyz/anchor";
 import { expect } from "chai";
+
 import { execCreateRefundableEscrow, execSettleLamports, ResultStatus } from "./escrow";
 import { sleep, getEscrowPDA, airdropLamports } from "./utils";
 
@@ -14,12 +15,12 @@ describe("Refundable Escrow Program", () => {
 	const SOL2 = (2 * LAMPORTS_PER_SOL); // 2SOL
 	const amountLamports = new BN(SOL1);
 	const refundableSeconds = new BN(SECONDS);
+	const transactionId = new BN(1);
 	const userDefinedData = "TEST";
 	const program = anchor.workspace.RefundableEscrow;
 	const programId = program.programId;
 
 	it("should refund successfully", async () => {
-		const transactionId = new BN(1);
 		const seller = new Keypair();
 		const buyer = new Keypair();
 		await airdropLamports(provider, buyer, SOL2);
@@ -39,7 +40,6 @@ describe("Refundable Escrow Program", () => {
 	});
 
 	it("should withdraw successfully", async () => {
-		const transactionId = new BN(2);
 		const seller = new Keypair();
 		const buyer = new Keypair();
 		await airdropLamports(provider, buyer, SOL2);
@@ -60,7 +60,6 @@ describe("Refundable Escrow Program", () => {
 	});
 
 	it("should refund fail because it is outside refund period", async () => {
-		const transactionId = new BN(3);
 		const seller = new Keypair();
 		const buyer = new Keypair();
 		await airdropLamports(provider, buyer, SOL2);
@@ -81,7 +80,6 @@ describe("Refundable Escrow Program", () => {
 	});
 
 	it("should withdraw fail because it is inside refund period", async () => {
-		const transactionId = new BN(4);
 		const seller = new Keypair();
 		const buyer = new Keypair();
 		await airdropLamports(provider, buyer, SOL2);
@@ -101,7 +99,6 @@ describe("Refundable Escrow Program", () => {
 	});
 
 	it("should create PDA fail because amountLamports is negative", async () => {
-		const transactionId = new BN(5);
 		const seller = new Keypair();
 		const buyer = new Keypair();
 		await airdropLamports(provider, buyer, SOL2);
@@ -123,7 +120,6 @@ describe("Refundable Escrow Program", () => {
 	});
 
 	it("should create PDA fail because amountLamports is zero", async () => {
-		const transactionId = new BN(6);
 		const seller = new Keypair();
 		const buyer = new Keypair();
 		await airdropLamports(provider, buyer, SOL2);
@@ -145,7 +141,6 @@ describe("Refundable Escrow Program", () => {
 	});
 
 	it("should create PDA fail because buyer doesn't have enough amountLamports", async () => {
-		const transactionId = new BN(7);
 		const seller = new Keypair();
 		const buyer = new Keypair();
 		await airdropLamports(provider, buyer, (1 * LAMPORTS_PER_SOL) - 1);
@@ -166,7 +161,6 @@ describe("Refundable Escrow Program", () => {
 	});
 
 	it("should create PDA fail because refundable seconds too long", async () => {
-		const transactionId = new BN(8);
 		const seller = new Keypair();
 		const buyer = new Keypair();
 		await airdropLamports(provider, buyer, SOL2);
@@ -188,7 +182,6 @@ describe("Refundable Escrow Program", () => {
 	});
 
 	it("should create PDA fail because refundable seconds too short", async () => {
-		const transactionId = new BN(9);
 		const seller = new Keypair();
 		const buyer = new Keypair();
 		await airdropLamports(provider, buyer, SOL2);
@@ -210,7 +203,6 @@ describe("Refundable Escrow Program", () => {
 	});
 
 	it("should create PDA fail because userDefinedData too large", async () => {
-		const transactionId = new BN(10);
 		const seller = new Keypair();
 		const buyer = new Keypair();
 		await airdropLamports(provider, buyer, SOL2);
@@ -232,7 +224,6 @@ describe("Refundable Escrow Program", () => {
 	});
 
 	it("should refund fail because requestor is neigher the buyer nor seller", async () => {
-		const transactionId = new BN(11);
 		const seller = new Keypair();
 		const buyer = new Keypair();
 		const other = new Keypair();
@@ -254,7 +245,6 @@ describe("Refundable Escrow Program", () => {
 	});
 
 	it("should withdraw fail because requestor is neigher the buyer nor seller", async () => {
-		const transactionId = new BN(12);
 		const seller = new Keypair();
 		const buyer = new Keypair();
 		const other = new Keypair();
@@ -277,7 +267,6 @@ describe("Refundable Escrow Program", () => {
 	});
 
 	it("should refund fail because refund was done multiple times", async () => {
-		const transactionId = new BN(13);
 		const seller = new Keypair();
 		const buyer = new Keypair();
 		await airdropLamports(provider, buyer, SOL2);
@@ -298,7 +287,6 @@ describe("Refundable Escrow Program", () => {
 	});
 
 	it("should refund fail because withdraw was done multiple times", async () => {
-		const transactionId = new BN(14);
 		const seller = new Keypair();
 		const buyer = new Keypair();
 		await airdropLamports(provider, buyer, SOL2);
@@ -318,4 +306,35 @@ describe("Refundable Escrow Program", () => {
 		await execSettleLamports(program, seller, escrowPDA);
 		expect(await execSettleLamports(program, seller, escrowPDA)).to.equal(ResultStatus.ERROR);
 	});
+
+	it("should create PDA fail because PDA already exists", async () => {
+		const seller = new Keypair();
+		const buyer = new Keypair();
+		await airdropLamports(provider, buyer, SOL2);
+		const escrowPDA = await getEscrowPDA(buyer, seller, transactionId, programId);
+
+		await execCreateRefundableEscrow(
+			program,
+			buyer,
+			seller,
+			escrowPDA,
+			transactionId,
+			amountLamports,
+			refundableSeconds,
+			userDefinedData
+		);
+		expect(
+			await execCreateRefundableEscrow(
+				program,
+				buyer,
+				seller,
+				escrowPDA,
+				transactionId,
+				amountLamports,
+				refundableSeconds,
+				userDefinedData
+			)
+		).to.equal(ResultStatus.ERROR);
+	});
+
 })

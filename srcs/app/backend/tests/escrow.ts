@@ -2,11 +2,15 @@ import { Keypair, SystemProgram } from "@solana/web3.js";
 import { Program, BN } from "@coral-xyz/anchor";
 import { RefundableEscrow } from "../target/types/refundable_escrow";
 
+// If the transaction is successful, then SUCCESS.
+// If it fails, then ERROR.
 export enum ResultStatus {
 	SUCCESS,
 	ERROR,
 }
 
+// Call the createRefundableEscrow API
+// If an exception occurs, return ERROR; otherwise, return SUCCESS
 export async function execCreateRefundableEscrow(
 	program: Program,
 	buyer: Keypair,
@@ -37,6 +41,8 @@ export async function execCreateRefundableEscrow(
 	}
 }
 
+// Call the settleLamports API
+// If an exception occurs, return ERROR; otherwise, return SUCCESS
 export async function execSettleLamports(
 	program: Program,
 	requestor: Keypair,

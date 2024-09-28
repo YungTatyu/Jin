@@ -2,6 +2,7 @@ import { PublicKey, Keypair } from "@solana/web3.js";
 import { AnchorProvider, BN } from "@coral-xyz/anchor";
 import { Buffer } from "buffer";
 
+// synchronous sleep function
 export function sleep(seconds: number) {
 	const milliseconds = seconds * 1000;
 	const start = Date.now();
@@ -9,6 +10,7 @@ export function sleep(seconds: number) {
 	}
 }
 
+// a function to derive a PDA from buyer, seller, and transactionID
 export async function getEscrowPDA(
 	buyer: Keypair,
 	seller: Keypair,
