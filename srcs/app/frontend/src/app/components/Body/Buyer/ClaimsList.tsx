@@ -6,7 +6,6 @@ srcs/app/frontend/src/app/components/Body/Buyer/ClaimsList.tsx
 'use client'
 
 import React, { useEffect, useState } from 'react';
-import { CheckSquare } from 'lucide-react';
 import ReturnSolButton from './ReturnSolButton';
 import styles from '../../../styles/Body/Buyer/ClaimsList.module.css'; 
 
@@ -57,7 +56,6 @@ const ClaimsList = () => {
           {transactions.map((transaction, index) => (
             <li key={index} className={styles.transactionItem}>
               <div className={styles.transactionHeader}>
-                <CheckSquare className={styles.checkbox} />
                 <div className={styles.sellerInfo}>
                   <div className={styles.sellerAddress}>{transaction.sellerAddress}</div>
                   <div className={styles.transactionAmount}>{transaction.transactionAmount} SOL</div>

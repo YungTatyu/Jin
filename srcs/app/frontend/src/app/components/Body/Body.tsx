@@ -3,17 +3,15 @@
 import React from 'react';
 import styles from '../../styles/Body/Body.module.css'; // スタイルを適用する場合
 import ClaimsList from './Buyer/ClaimsList';
+import UnrecoverableList from './Buyer/UnrecoverableList';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 interface BodyProps {
   isBuyer: boolean;
-  connected: boolean;
-  publicKey: any; // 型は適切に調整してください
 }
 
-const Body: React.FC<BodyProps> = ({ isBuyer, connected, publicKey }) => {
-  console.log(`isBuyer: ${isBuyer}`);
-  console.log(`connected: ${connected}`);
-  console.log(`publicKey: ${publicKey}`);
+const Body: React.FC<BodyProps> = ({ isBuyer}) => {
+  const { connected, publicKey } = useWallet();
 
   return (
     <div className={styles.bodyContainer}>
@@ -22,6 +20,7 @@ const Body: React.FC<BodyProps> = ({ isBuyer, connected, publicKey }) => {
           {connected ? (
             <>
               <ClaimsList />
+              <UnrecoverableList />
             </>
           ) : (
             <p>Please connect your wallet to access buyer features.</p>
