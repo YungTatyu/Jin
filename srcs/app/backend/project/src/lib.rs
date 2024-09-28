@@ -1,74 +1,193 @@
 use anchor_lang::prelude::*;
+use anchor_lang::solana_program::{program::invoke, system_instruction};
 
-// SolanaのProgram IDを指定
+// Specify program ID
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
+const USER_DEFINED_DATA_SIZE: usize = 100;
+const MAX_REFUNDABLE_SECONDS: i64 = 60 * 60 * 24 * 365;
+
 #[program]
-pub mod counter {
+pub mod refundable_escrow {
     use super::*;
 
-    // Counterを作成するAPI
-    // ユーザー(authority)に紐付いた新しいCounterアカウントを作成し、初期値を0に設定
-    pub fn create_counter(ctx: Context<CreateCounter>) -> Result<()> {
-        let counter = &mut ctx.accounts.counter;
-        // カウンタの所有者（authority）の公開鍵を保存
-        counter.authority = ctx.accounts.authority.key();
-        // カウンタを0に初期化
-        counter.count = 0;
-        Ok(())
+    // Initialize RefundableEscrowPDA and transfer lamports from buyer to PDA
+    pub fn create_refundable_escrow(
+        ctx: Context<CreateRefundableEscrow>,
+        transaction_id: u64,
+        amount_lamports: u64,
+        refundable_seconds: i64,
+        user_defined_data: String,
+    ) -> Result<()> {
+        // init RefundableEscrowPDA
+        let escrow = &mut ctx.accounts.escrow;
+        escrow.seller_pubkey = ctx.accounts.seller.key();
+        escrow.buyer_pubkey = ctx.accounts.buyer.key();
+        escrow.transaction_id = transaction_id;
+        escrow.amount_lamports = amount_lamports;
+        escrow.is_canceled = false;
+
+        // user defined data validate
+        if user_defined_data.as_bytes().len() > USER_DEFINED_DATA_SIZE {
+            return Err(ErrorCode::UserDefinedDataTooLarge.into());
+        }
+        escrow.user_defined_data = user_defined_data;
+
+        // check (0 < refundable_seconds <= MAX_REFUNDABLE_SECONDS)
+        if refundable_seconds <= 0 || refundable_seconds > MAX_REFUNDABLE_SECONDS {
+            return Err(ErrorCode::RefundableSecondsError.into());
+        }
+        escrow.create_at = Clock::get()?.unix_timestamp;
+        escrow.refund_deadline = escrow.create_at + refundable_seconds;
+
+        // lamports transfer buyer -> RefundableEscrowPDA
+        let from = ctx.accounts.buyer.to_account_info();
+        let to = ctx.accounts.escrow.to_account_info();
+        let system_program = ctx.accounts.system_program.to_account_info();
+        transfer_lamports_to_pda(from, to, system_program, amount_lamports)
     }
 
-    // CounterをインクリメントするAPI
-    // 既存のカウンタアカウントのカウント値を1増やす処理
-    pub fn update_counter(ctx: Context<UpdateCounter>) -> Result<()> {
-        let counter = &mut ctx.accounts.counter;
-        counter.count += 1;
-        Ok(())
+    // Refunds(Buyer) or Withdrawals(Seller)
+    pub fn settle_lamports(ctx: Context<SettleLamports>) -> Result<()> {
+        let from = ctx.accounts.escrow.to_account_info();
+        let to = ctx.accounts.requestor.to_account_info();
+        let amount_lamports = ctx.accounts.escrow.amount_lamports;
+        let seller_pubkey = ctx.accounts.escrow.seller_pubkey;
+        let buyer_pubkey = ctx.accounts.escrow.buyer_pubkey;
+        let refund_deadline = ctx.accounts.escrow.refund_deadline;
+        let now = Clock::get()?.unix_timestamp;
+
+        // check RefundableEscrowPDA owner is this smart contractor?
+        if from.owner != ctx.program_id {
+            return Err(ErrorCode::InvalidAccountError.into());
+        }
+
+        match to.key() {
+            key if key == buyer_pubkey => match now {
+                // Buyer and within the refund period
+                now if (now <= refund_deadline) => {
+                    transfer_lamports_from_pda(&from, &to, amount_lamports)?;
+                    ctx.accounts.escrow.is_canceled = true;
+                    Ok(())
+                }
+                // Refund could not be made because it was outside the refund period
+                _ => Err(ErrorCode::RefundError.into()),
+            },
+            key if key == seller_pubkey => match now {
+                // Seller and outside the refund period
+                now if (refund_deadline < now) => {
+                    transfer_lamports_from_pda(&from, &to, amount_lamports)
+                }
+                // Withdrawals not possible due to refund period
+                _ => Err(ErrorCode::FundraisingError.into()),
+            },
+            // The account is neither buyer nor seller
+            _ => Err(ErrorCode::InvalidAccountError.into()),
+        }
     }
 }
 
+// transfer from(UserAccount) -> to(PDA)
+fn transfer_lamports_to_pda<'info>(
+    from: AccountInfo<'info>,
+    to: AccountInfo<'info>,
+    system_program: AccountInfo<'info>,
+    amount_lamports: u64,
+) -> Result<()> {
+    let ix = system_instruction::transfer(&from.key(), &to.key(), amount_lamports);
+    match invoke(&ix, &[from, to, system_program]) {
+        Ok(_) => Ok(()),
+        Err(_) => Err(ErrorCode::BuyerUnderfundedError.into()),
+    }
+}
+
+// transfer from(PDA) -> to(UserAccount)
+fn transfer_lamports_from_pda(
+    from: &AccountInfo,
+    to: &AccountInfo,
+    amount_lamports: u64,
+) -> Result<()> {
+    let mut from_lamports = from.try_borrow_mut_lamports()?;
+    let mut to_lamports = to.try_borrow_mut_lamports()?;
+
+    // Check whether the expected balance exists in the PDA
+    if **from_lamports < amount_lamports {
+        return Err(ErrorCode::CashShortageError.into());
+    }
+
+    **from_lamports -= amount_lamports;
+    **to_lamports += amount_lamports;
+    Ok(())
+}
+
 #[derive(Accounts)]
-// CreateCounter構造体: Counterアカウントを作成するためのコンテキスト
-// Counterを作成する際のアカウント情報を定義
-pub struct CreateCounter<'info> {
-    // authority: カウンタを作成し署名するユーザーのアカウント
+#[instruction(transaction_id: u64)]
+pub struct CreateRefundableEscrow<'info> {
     #[account(mut)]
-    authority: Signer<'info>,
+    buyer: Signer<'info>,
+    /// CHECK: money-back guarantee period allows for refunds within a certain period of time.
+    seller: AccountInfo<'info>,
 
-    // counter: 新しく作成されるカウンタアカウント
-    // seedsとbumpを使って、カウンタアカウントをPDA(Program Derived Address)で生成
     #[account(
-        init, // カウンタアカウントを初期化する指示
-        seeds = [authority.key().as_ref()], // authorityの公開鍵を元にPDAを生成
-        bump, // PDAの衝突を避けるために使用されるバンプ値
-        payer = authority, // アカウント作成時の手数料を払うユーザー
-        space = 100 // カウンタアカウントのメモリサイズ
+        init,
+        // PDA is derived from buyer, seller and transaction ID
+        seeds = [
+            buyer.key().as_ref(),
+            seller.key().as_ref(),
+            &transaction_id.to_le_bytes()
+        ],
+        bump,
+        payer = buyer,
+        // In addition to the space for the account data,
+        // you have to add 8 to the space constraint for Anchor's internal discriminator.
+        // https://www.anchor-lang.com/docs/space
+        space = 8 + RefundableEscrow::LEN,
     )]
-    counter: Account<'info, Counter>,
-
-    // システムプログラム(アカウント作成時に使用)
+    escrow: Account<'info, RefundableEscrow>,
     system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
-// UpdateCounter構造体: Counterを更新するためのコンテキスト
-// Counterをインクリメントする際のアカウント情報を定義
-pub struct UpdateCounter<'info> {
-    // authority: カウンタの所有者(署名者)のアカウント
-    authority: Signer<'info>,
+pub struct SettleLamports<'info> {
+    // Buyer or Seller
+    #[account(mut)]
+    requestor: Signer<'info>,
 
-    // counter: インクリメントされるカウンタアカウント
-    // カウンタアカウントの所有者がauthorityであることを確認(has_one)
-    #[account(mut, has_one = authority)]
-    counter: Account<'info, Counter>,
+    // PDA created by CreateRefundableEscrow
+    #[account(mut)]
+    escrow: Account<'info, RefundableEscrow>,
 }
 
-// Counter構造体: Counterアカウントのデータ構造
-// Solanaのアカウントに保存されるデータを定義
 #[account]
-pub struct Counter {
-    // カウンタアカウントの所有者(authority)の公開鍵
-    authority: Pubkey,
-    // カウンタの現在の値
-    count: u64,
+pub struct RefundableEscrow {
+    seller_pubkey: Pubkey,     // 32
+    buyer_pubkey: Pubkey,      // 32
+    transaction_id: u64,       // 8
+    amount_lamports: u64,      // 8
+    create_at: i64,            // 8 (unix_timestamp)
+    refund_deadline: i64,      // 8 (unix_timestamp)
+    is_canceled: bool,         // 1
+    user_defined_data: String, // 4 + variable_size
+}
+
+impl RefundableEscrow {
+    pub const LEN: usize = 32 + 32 + 8 + 8 + 8 + 8 + 1 + 4 + USER_DEFINED_DATA_SIZE;
+}
+
+#[error_code]
+pub enum ErrorCode {
+    #[msg("Buyer doesn't hold the required lamports.")]
+    BuyerUnderfundedError,
+    #[msg("Invalid account provided.")]
+    InvalidAccountError,
+    #[msg("Refund period has expired.")]
+    RefundError,
+    #[msg("Withdrawals are not available during thr refund period.")]
+    FundraisingError,
+    #[msg("There are no funds available to withdraw.")]
+    CashShortageError,
+    #[msg("User defined data size is too large.")]
+    UserDefinedDataTooLarge,
+    #[msg("Refundable seconds is invalid.")]
+    RefundableSecondsError,
 }
