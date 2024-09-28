@@ -30,7 +30,6 @@ const Body: React.FC<BodyProps> = ({ isBuyer}) => {
         </div>
       ) : (
         <div>
-          <h2>Seller Dashboard</h2>
           {connected ? (
             <>
               <ClaimedRightsList/>

@@ -7,7 +7,6 @@ srcs/app/frontend/src/app/components/Body/Seller/ClaimedRightsList.tsx
 
 import React, { useEffect, useState } from 'react';
 import styles from '../../../styles/Body/Seller/ClaimedRightsList.module.css'; 
-// ClaimedRightsList.tsx
 
 const getCurrentDate = (): string => {
     const now = new Date();
