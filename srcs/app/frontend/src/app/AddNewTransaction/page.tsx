@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import Body from './Body';
-import Header from './Header';
+import Body from '../components/AddNewTransaction/Body';
+import Header from '../components/AddNewTransaction/Header';
 
 const AddNewTransaction: React.FC = () => {
   return (

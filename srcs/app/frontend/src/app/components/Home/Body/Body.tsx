@@ -1,7 +1,7 @@
 // components/Body/Body.tsx
 'use client'
 import React from 'react';
-import styles from '../../styles/Body/Body.module.css'; // スタイルを適用する場合
+import styles from '../../../styles/Body/Body.module.css'; // スタイルを適用する場合
 import ClaimsList from './Buyer/ClaimsList';
 import UnrecoverableList from './Buyer/UnrecoverableList';
 import { useWallet } from '@solana/wallet-adapter-react';

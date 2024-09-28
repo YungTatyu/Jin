@@ -5,7 +5,7 @@ import BuyerSellerSwitch from './BuyerSellerSwitch';
 import AddNewTransactionButton from './AddNewTransactionButton';
 import WithdrawAllButton from './WithdrawAllButton';
 import ConnectWalletButton from './ConnectWalletButton';
-import styles from '../../styles/Header/Header.module.css';
+import styles from '../../../styles/Header/Header.module.css';
 
 interface HeaderProps {
   isBuyer: boolean;

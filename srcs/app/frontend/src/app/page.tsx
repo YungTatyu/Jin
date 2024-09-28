@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import Header from './components/Header/Header';
-import Body from './components/Body/Body';
+import Header from './components/Home/Header/Header';
+import Body from './components/Home/Body/Body';
+import Footer from './components/Home/Footer/Footer';
 
 export default function Home() {
   const [isBuyer, setIsBuyer] = useState(true);
@@ -21,6 +22,7 @@ export default function Home() {
       <Body
         isBuyer={isBuyer} 
       />
+      <Footer/>
     </main>
   );
 }

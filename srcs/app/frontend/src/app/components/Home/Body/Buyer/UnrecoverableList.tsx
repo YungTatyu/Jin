@@ -1,15 +1,13 @@
 /*
-srcs/app/frontend/src/app/components/Body/Seller/ClaimsExpiredList.tsx
-期限が切れ、PDAから回収できるトランザクションのリストのcomponentです。
+srcs/app/frontend/src/app/components/Body/Buyer/UnrecoverableList.tsx
+請求権を持っていたが指定した期限が切れたトランザクションのリストを表示するcomponent
 */
-
 
 'use client'
 
 import React, { useEffect, useState } from 'react';
-//import ReturnSolButton from './ReturnSolButton';
-import WithdrawButton from './WithdrawButton';
-import styles from '../../../styles/Body/Seller/ClaimsExpiredList.module.css'; 
+import ReturnSolButton from './ReturnSolButton';
+import styles from '../../../../styles/Body/Buyer/UnrecoverableList.module.css'; 
 
 /*
 const getCurrentDate = (): string => {
@@ -33,7 +31,7 @@ interface NotRetTransaction {
   reason: string;
 };
 
-const ClaimsExpiredList = () => {
+const UnrecoverableList = () => {
 
     const [transactions, setTransactions] = useState([]);
 
@@ -72,10 +70,10 @@ const ClaimsExpiredList = () => {
                   <div className={styles.transactionAmount}>{transaction.transactionAmount} SOL</div>
                 </div>
                 <div className={styles.sellerInfo2}>
-                  <div className={styles.transactionDate}>Withdraw OK</div>
+                  <div className={styles.transactionDate}>Not returnable</div>
                   <div className={styles.transactionId}>Transaction ID: {transaction.id}</div>
                 </div>
-                <WithdrawButton/>
+                <button className={styles.buttonBack}></button>
               </div>
               <div className={styles.transactionReason}>{transaction.reason}</div>
             </li>
@@ -87,4 +85,4 @@ const ClaimsExpiredList = () => {
 
 }
 
-export default ClaimsExpiredList;
+export default UnrecoverableList;

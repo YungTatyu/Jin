@@ -4,7 +4,7 @@ srcs/app/frontend/src/app/components/Body/Seller/WithdrawButton.tsx
 */
 
 import React from 'react';
-import styles from '../../../styles/Body/Seller/WithdrawButton.module.css'
+import styles from '../../../../styles/Body/Seller/WithdrawButton.module.css'
 
 const WithdrawButton = () => {
   const onClick = () => {

@@ -7,7 +7,7 @@ srcs/app/frontend/src/app/components/Body/Buyer/ClaimsList.tsx
 
 import React, { useEffect, useState } from 'react';
 import ReturnSolButton from './ReturnSolButton';
-import styles from '../../../styles/Body/Buyer/ClaimsList.module.css'; 
+import styles from '../../../../styles/Body/Buyer/ClaimsList.module.css'; 
 
 const getCurrentDate = (): string => {
     const now = new Date();
@@ -21,9 +21,17 @@ const getCurrentDate = (): string => {
     return `${year}-${month}-${day} ${hours}:${minutes}`;
   };
 
-const ClaimsList = () => {
+interface ReturnableTransaction {
+  sellerAddress: string;
+  id: string;
+  transactionAmount: number;
+  deadline: string;
+  reason: string;
+};
 
-    const [transactions, setTransactions] = useState([]);
+const ClaimsList = () => {
+    // useState の初期化時に型を指定
+    const [transactions, setTransactions] = useState<ReturnableTransaction[]>([]);
 
     // データ取得の例
     useEffect(() => {

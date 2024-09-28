@@ -3,7 +3,6 @@
 import React from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import {WalletModalButton, WalletConnectButton, WalletDisconnectButton } from '@solana/wallet-adapter-react-ui';
-import styles from '../../styles/Header/DisconectWalletButton.module.css';
 
 const ConnectWalletButton: React.FC = () => {
   //const { connected, disconnect, publicKey } = useWallet();

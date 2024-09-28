@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../../styles/Header/ActionButton.module.css';
+import styles from '../../../styles/Header/ActionButton.module.css';
 
 const WithdrawAllButton: React.FC = () => {
   const handleClick = () => {

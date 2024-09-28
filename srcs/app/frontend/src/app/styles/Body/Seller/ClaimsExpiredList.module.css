@@ -47,7 +47,7 @@
   
   .sellerInfo2 {
     flex-grow: 0;
-    margin-right: 31px;
+    margin-right: 115px;
   }
   
   .sellerAddress {
@@ -106,12 +106,3 @@
     border-radius: 0px 0px 15px 15px;
   }
   
-  .buttonBack {
-    background-color: #FFDBC9;
-    color: #000000;
-    width: 90px; /* 固定幅を設定 */
-    height: 38px;
-    border: none;
-    border-radius: 8px;
-    text-align: center; /* テキストを中央揃えに */
-  }

@@ -6,7 +6,7 @@ srcs/app/frontend/src/app/components/Body/Seller/ClaimedRightsList.tsx
 'use client'
 
 import React, { useEffect, useState } from 'react';
-import styles from '../../../styles/Body/Seller/ClaimedRightsList.module.css'; 
+import styles from '../../../../styles/Body/Seller/ClaimedRightsList.module.css'; 
 
 const getCurrentDate = (): string => {
     const now = new Date();
@@ -47,7 +47,7 @@ const ClaimedRightsList = () => {
     const nowDate = getCurrentDate();
 
     return (
-      <div className={styles.claimsListContainer}>
+      <div className={styles.ClaimedRightsListContainer}>
         <h2 className={styles.sectionTitle}>Contract within the return period</h2>
         <div className={styles.transactionListWrapper}>
 

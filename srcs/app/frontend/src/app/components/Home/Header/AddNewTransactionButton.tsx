@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 // /styles/AddNewTransaction/AddNewTransaction.module.css
-import styles from '../../styles/Header/ActionButton.module.css';
+import styles from '../../../styles/Header/ActionButton.module.css';
 import { useWallet } from '@solana/wallet-adapter-react';
 
 const AddNewTransactionButton: React.FC = () => {

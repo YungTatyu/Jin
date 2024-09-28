@@ -5,7 +5,7 @@ srcs/app/frontend/src/app/components/Body/Buyer/ReturnSolButton.tsx
 
 
 import React from 'react';
-import styles from '../../../styles/Body/Buyer/ReturnSolButton.module.css'
+import styles from '../../../../styles/Body/Buyer/ReturnSolButton.module.css'
 
 const ReturnSolButton = () => {
   const onClick = () => {

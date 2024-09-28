@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import styles from '../styles/AddNewTransaction/Header.module.css';
+import styles from '../../styles/AddNewTransaction/Header.module.css';
 
 const Header: React.FC = () => {
   const router = useRouter();
