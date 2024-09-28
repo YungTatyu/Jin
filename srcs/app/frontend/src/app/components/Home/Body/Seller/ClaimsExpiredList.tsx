@@ -10,7 +10,7 @@ import React, { useEffect, useState } from 'react';
 import WithdrawButton from './WithdrawButton';
 import styles from '../../../../styles/Body/Seller/ClaimsExpiredList.module.css'; 
 
-interface NotRetTransaction {
+interface WithdrawTransaction {
   sellerAddress: string;
   id: string;
   transactionAmount: number;
@@ -19,14 +19,13 @@ interface NotRetTransaction {
 };
 
 const ClaimsExpiredList = () => {
-
-    const [transactions, setTransactions] = useState([]);
+    const [transactions, setTransactions] = useState<WithdrawTransaction[]>([]);
 
     // データ取得の例
     useEffect(() => {
       const fetchData = async () => {
         // ここでAPIからデータを取得する
-        const transactions: NotRetTransaction[] = [
+        const transactions = [
           { sellerAddress: 'ユーザーA`', id: "1234567891085552", transactionAmount: 100, deadline: '2024-09-01 11:00', reason: 'netflix, standard plan' },
           { sellerAddress: 'ユーザーB`', id: "1234567891085552", transactionAmount: 200, deadline: '2024-09-02 11:00', reason: 'netflix, standard plan' },
           { sellerAddress: 'ユーザーC`', id: "1234567891085552", transactionAmount: 150, deadline: '2024-09-03 11:00', reason: 'netflix, standard plan' },

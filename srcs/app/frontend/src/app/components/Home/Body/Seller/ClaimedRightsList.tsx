@@ -20,9 +20,17 @@ const getCurrentDate = (): string => {
     return `${year}-${month}-${day} ${hours}:${minutes}`;
   };
 
-const ClaimedRightsList = () => {
 
-    const [transactions, setTransactions] = useState([]);
+interface PossibleRepaymentTransaction {
+  sellerAddress: string;
+  id: string;
+  transactionAmount: number;
+  deadline: string;
+  reason: string;
+};
+
+const ClaimedRightsList = () => {
+    const [transactions, setTransactions] = useState<PossibleRepaymentTransaction[]>([]);
 
     // データ取得の例
     useEffect(() => {

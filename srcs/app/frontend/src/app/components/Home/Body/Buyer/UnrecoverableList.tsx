@@ -32,8 +32,7 @@ interface NotRetTransaction {
 };
 
 const UnrecoverableList = () => {
-
-    const [transactions, setTransactions] = useState([]);
+    const [transactions, setTransactions] = useState<NotRetTransaction[]>([]);
 
     // データ取得の例
     useEffect(() => {
