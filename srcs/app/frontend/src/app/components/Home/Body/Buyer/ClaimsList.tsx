@@ -29,7 +29,6 @@ interface ReturnableTransaction {
   reason: string;
 }
 
-
 const ClaimsList = () => {
   // useState の初期化時に型を指定
   const [transactions, setTransactions] = useState<ReturnableTransaction[]>([]);
