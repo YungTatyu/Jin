@@ -29,9 +29,9 @@ lint:
 	${DOCKER_COMPOSE} -f ${COMPOSE_YML_PATH} run --rm lint-format lint
 
 test-backend: up
-	docker exec -it app make test-backend
+	sleep 5 && docker exec -it app make test-backend
 	${MAKE} down
 
 test-anchor: up
-	docker exec -it app make test-anchor
+	sleep 5 && docker exec -it app make test-anchor
 	${MAKE} down
