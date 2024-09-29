@@ -24,8 +24,13 @@ pub mod refundable_escrow {
         escrow.seller_pubkey = ctx.accounts.seller.key();
         escrow.buyer_pubkey = ctx.accounts.buyer.key();
         escrow.transaction_id = transaction_id;
-        escrow.amount_lamports = amount_lamports;
         escrow.is_canceled = false;
+
+        // amount validate
+        if amount_lamports <= 0 {
+            return Err(ErrorCode::AmountTooSmall.into());
+        }
+        escrow.amount_lamports = amount_lamports;
 
         // user defined data validate
         if user_defined_data.as_bytes().len() > USER_DEFINED_DATA_SIZE {
@@ -190,4 +195,6 @@ pub enum ErrorCode {
     UserDefinedDataTooLarge,
     #[msg("Refundable seconds is invalid.")]
     RefundableSecondsError,
+    #[msg("Transaction amount is too small.")]
+    AmountTooSmall,
 }

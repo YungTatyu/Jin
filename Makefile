@@ -27,3 +27,11 @@ fmt:
 lint:
 	@echo "LINT"
 	${DOCKER_COMPOSE} -f ${COMPOSE_YML_PATH} run --rm lint-format lint
+
+test-backend: up
+	sleep 5 && docker exec -it app make test-backend
+	${MAKE} down
+
+test-anchor: up
+	sleep 5 && docker exec -it app make test-anchor
+	${MAKE} down

@@ -31,3 +31,7 @@ test-backend: deploy build
 	solana-keygen new --no-bip39-passphrase -o /root/.config/solana/id2.json && \
 	solana airdrop 1 /root/.config/solana/id2.json && \
 	node /usr/src/project/app/sample/test.js
+
+test-anchor: deploy
+	cd /usr/src/project/ && \
+	anchor test
