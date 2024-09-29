@@ -85,7 +85,7 @@ const ClaimsList: React.FC = () => {
                   </div>
                 </div>
                 {!transaction.is_canceled && (
-                  <ReturnSolButton />
+                  <ReturnSolButton buyer_pubkey={transaction.buyer_pubkey}/>
                 )}
               </div>
               <div className={styles.transactionReason}>
