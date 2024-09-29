@@ -1,14 +1,12 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState } from 'react';
 import styles from '../../styles/AddNewTransaction/AddNewTransaction.module.css';
 import AddNewTransactionComponent from './AddNewTransactionComponent';
-
 
 const Body: React.FC = () => {
   const [sellerAddress, setSellerAddress] = useState('');
   const [amount, setAmount] = useState('');
   const [refundDeadline, setRefundDeadline] = useState('');
   const [transactionInfo, setTransactionInfo] = useState('');
-  //const [transactionId, setTransactionId] = useState('');
 
   return (
     <div className={styles.body}>
@@ -68,7 +66,12 @@ const Body: React.FC = () => {
             />
           </div>
         </div>
-        <AddNewTransactionComponent sellerAddress={sellerAddress} amount={amount} refundDeadline={refundDeadline} transactionInfo={transactionInfo}/>
+        <AddNewTransactionComponent
+          sellerAddress={sellerAddress}
+          amount={amount}
+          refundDeadline={refundDeadline}
+          transactionInfo={transactionInfo}
+        />
       </div>
     </div>
   );

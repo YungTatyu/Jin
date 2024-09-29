@@ -9,13 +9,19 @@ function findPackagesUsingBigint(directory) {
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     const allDependencies = {
       ...packageJson.dependencies,
-      ...packageJson.devDependencies
+      ...packageJson.devDependencies,
     };
 
     for (const [name, version] of Object.entries(allDependencies)) {
-      const depPackageJsonPath = path.join(nodeModulesPath, name, 'package.json');
+      const depPackageJsonPath = path.join(
+        nodeModulesPath,
+        name,
+        'package.json'
+      );
       if (fs.existsSync(depPackageJsonPath)) {
-        const depPackageJson = JSON.parse(fs.readFileSync(depPackageJsonPath, 'utf8'));
+        const depPackageJson = JSON.parse(
+          fs.readFileSync(depPackageJsonPath, 'utf8')
+        );
         if (depPackageJson.dependencies && depPackageJson.dependencies.bigint) {
           console.log(`Package ${name} uses bigint`);
         }
@@ -24,7 +30,7 @@ function findPackagesUsingBigint(directory) {
   }
 
   if (fs.existsSync(nodeModulesPath)) {
-    fs.readdirSync(nodeModulesPath).forEach(file => {
+    fs.readdirSync(nodeModulesPath).forEach((file) => {
       const fullPath = path.join(nodeModulesPath, file);
       if (fs.statSync(fullPath).isDirectory()) {
         findPackagesUsingBigint(fullPath);

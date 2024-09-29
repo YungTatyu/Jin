@@ -4,6 +4,7 @@ cargo build --manifest-path replace/Cargo.toml
 
 ./replace/target/debug/replace project/programs/project/src/lib.rs
 ./replace/target/debug/replace project/app/sample/test.js
+./replace/target/debug/replace project/app/components/AddNewTransaction/AddNewTransactionComponent.tsx
 
 cargo clean --manifest-path replace/Cargo.toml
 

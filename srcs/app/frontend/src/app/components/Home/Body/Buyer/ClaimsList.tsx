@@ -8,30 +8,35 @@ srcs/app/frontend/src/app/components/Body/Buyer/ClaimsList.tsx
 import React, { useEffect, useState } from 'react';
 import ReturnSolButton from './ReturnSolButton';
 import styles from '../../../../styles/Body/Buyer/ClaimsList.module.css';
-import { RefundableEscrowData, fetchBuyerTransactions } from '@/app/components/api';
+import {
+  RefundableEscrowData,
+  fetchBuyerTransactions,
+} from '@/app/components/api';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection, PublicKey } from '@solana/web3.js';
 
-const getCurrentDate = (): string => {
-  const now = new Date();
+// const getCurrentDate = (): string => {
+//   const now = new Date();
 
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0'); // 月は0から始まるので1を足す
-  const day = String(now.getDate()).padStart(2, '0');
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
+//   const year = now.getFullYear();
+//   const month = String(now.getMonth() + 1).padStart(2, '0'); // 月は0から始まるので1を足す
+//   const day = String(now.getDate()).padStart(2, '0');
+//   const hours = String(now.getHours()).padStart(2, '0');
+//   const minutes = String(now.getMinutes()).padStart(2, '0');
 
-  return `${year}-${month}-${day} ${hours}:${minutes}`;
-};
+//   return `${year}-${month}-${day} ${hours}:${minutes}`;
+// };
 
 const SOLANA_NETWORK = 'https://api.devnet.solana.com';
-const PROGRAM_ID = new PublicKey('Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS');
+const PROGRAM_ID = new PublicKey(
+  'Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS'
+);
 
 const ClaimsList: React.FC = () => {
   // useState の初期化時に型を指定
   const [transactions, setTransactions] = useState<RefundableEscrowData[]>([]);
   const { publicKey } = useWallet();
-  const nowDate = getCurrentDate();
+  //const nowDate = getCurrentDate();
 
   // データ取得の例
   useEffect(() => {
@@ -42,7 +47,11 @@ const ClaimsList: React.FC = () => {
       }
       const connection = new Connection(SOLANA_NETWORK);
       try {
-        const escrowData = await fetchBuyerTransactions(PROGRAM_ID, connection, publicKey);
+        const escrowData = await fetchBuyerTransactions(
+          PROGRAM_ID,
+          connection,
+          publicKey
+        );
         setTransactions(escrowData);
       } catch (error) {
         console.error('Error fetching transactions:', error);
@@ -52,11 +61,11 @@ const ClaimsList: React.FC = () => {
       fetchData();
     }
   }, [publicKey]);
-  const formatDate = (timestamp: BigInt): string => {
+  const formatDate = (timestamp: bigint): string => {
     return new Date(Number(timestamp) * 1000).toLocaleString();
   };
 
-  const formatAmount = (lamports: BigInt): string => {
+  const formatAmount = (lamports: bigint): string => {
     return (Number(lamports) / 1e9).toFixed(9);
   };
 
@@ -78,20 +87,23 @@ const ClaimsList: React.FC = () => {
                 </div>
                 <div className={styles.sellerInfo2}>
                   <div className={styles.transactionDate}>
-                    {formatDate(transaction.create_at)} ~ {formatDate(transaction.refund_deadline)}
+                    {formatDate(transaction.create_at)} ~{' '}
+                    {formatDate(transaction.refund_deadline)}
                   </div>
                   <div className={styles.transactionId}>
                     Transaction ID: {transaction.transaction_id.toString()}
                   </div>
                 </div>
                 {!transaction.is_canceled && (
-                  <ReturnSolButton buyer_pubkey={transaction.buyer_pubkey}/>
+                  <ReturnSolButton buyer_pubkey={transaction.buyer_pubkey} />
                 )}
               </div>
               <div className={styles.transactionReason}>
                 {transaction.user_defined_data}
               </div>
-              {transaction.is_canceled && <div className={styles.canceledStatus}>Canceled</div>}
+              {transaction.is_canceled && (
+                <div className={styles.canceledStatus}>Canceled</div>
+              )}
             </li>
           ))}
         </ul>

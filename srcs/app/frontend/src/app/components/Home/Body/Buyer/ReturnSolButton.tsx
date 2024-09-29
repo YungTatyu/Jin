@@ -5,13 +5,13 @@ srcs/app/frontend/src/app/components/Body/Buyer/ReturnSolButton.tsx
 
 import React from 'react';
 import styles from '../../../../styles/Body/Buyer/ReturnSolButton.module.css';
-import { PublicKey } from "@solana/web3.js";
+import { PublicKey } from '@solana/web3.js';
 
 interface ReturnSolButtonProps {
-	buyer_pubkey: PublicKey,
+  buyer_pubkey: PublicKey;
 }
 
-const ReturnSolButton: React.FC<ReturnSolButtonProps> = ({buyer_pubkey}) => {
+const ReturnSolButton: React.FC<ReturnSolButtonProps> = ({ buyer_pubkey }) => {
   const onClick = () => {
     alert(`Hello! ${buyer_pubkey}`);
   };
