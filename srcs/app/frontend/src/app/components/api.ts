@@ -1,6 +1,7 @@
 import { PublicKey, Keypair, Connection, SystemProgram } from "@solana/web3.js";
 import { Buffer } from "buffer";
-import { Program, BN } from "@coral-xyz/anchor";
+import { Program, BN, Idl } from "@coral-xyz/anchor";
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 
 // decode後にこの構造体に格納
 export type RefundableEscrowData = {
@@ -17,32 +18,42 @@ export type RefundableEscrowData = {
 // addNewTransaction画面でOKボタンを押したときに実行される想定
 // 戻り値: Sucess -> true, Error -> false
 export async function addNewTransaction(
-	program: Program,
+	program: Program<Idl>,
 	programId: PublicKey,
-	buyer: Keypair,
 	sellerPubkey: PublicKey,
 	transactionId: number,
 	amountLamports: number,
 	refundableSeconds: number,
 	userDefinedData: String
 ): Promise<boolean> {
-	const escrowPDA = await getEscrowPDA(buyer.publicKey, sellerPubkey, transactionId, programId);
+    const { publicKey, sendTransaction } = useWallet();
+    const {connection} = useConnection()
+
+    if (!publicKey || !sendTransaction) {
+        console.error("Wallet not connected");
+        return false
+    }
+	const escrowPDA = await getEscrowPDA(publicKey, sellerPubkey, transactionId, programId);
 	try {
-		await program.methods.createRefundableEscrow(
+        const transaction = await program.methods.createRefundableEscrow(
 			new BN(transactionId),
 			new BN(amountLamports),
 			new BN(refundableSeconds),
-			userDefinedData)
-			.accounts({
-				buyer: buyer.publicKey,
-				seller: sellerPubkey,
-				escrow: escrowPDA,
-				systemProgram: SystemProgram.programId,
-			})
-			.signers([buyer])
-			.rpc();
+			userDefinedData
+        )
+        .accounts({
+            buyer: publicKey,
+            seller: sellerPubkey,
+            escrow: escrowPDA,
+            systemProgram: SystemProgram.programId,
+        })
+        .transaction();
+        const signature = await sendTransaction(transaction, connection);
+        await connection.confirmTransaction(signature, 'confirmed');
+        console.log("Transaction successful:", signature);
 		return true;
-	} catch {
+	} catch(error) {
+        console.error("Transaction failed:", error);
 		return false;
 	}
 }

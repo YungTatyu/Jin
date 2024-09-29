@@ -1,7 +1,15 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import styles from '../../styles/AddNewTransaction/AddNewTransaction.module.css';
+import AddNewTransactionComponent from './AddNewTransactionComponent';
+
 
 const Body: React.FC = () => {
+  const [sellerAddress, setSellerAddress] = useState('');
+  const [amount, setAmount] = useState('');
+  const [refundDeadline, setRefundDeadline] = useState('');
+  const [transactionInfo, setTransactionInfo] = useState('');
+  //const [transactionId, setTransactionId] = useState('');
+
   return (
     <div className={styles.body}>
       <div className={styles.frame30}>
@@ -10,12 +18,24 @@ const Body: React.FC = () => {
 
           <div className={styles.inputGroup}>
             <label htmlFor="sellerAddress">Enter seller address</label>
-            <input type="text" id="sellerAddress" className={styles.input} />
+            <input
+              type="text"
+              id="sellerAddress"
+              className={styles.input}
+              value={sellerAddress}
+              onChange={(e) => setSellerAddress(e.target.value)}
+            />
           </div>
 
           <div className={styles.inputGroup}>
             <label htmlFor="amount">Enter amount</label>
-            <input type="text" id="amount" className={styles.input} />
+            <input
+              type="text"
+              id="amount"
+              className={styles.input}
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+            />
           </div>
 
           <div className={styles.inputGroup}>
@@ -25,7 +45,13 @@ const Body: React.FC = () => {
                 (You can enter 1 to 360 days)
               </span>
             </label>
-            <input type="text" id="refundDeadline" className={styles.input} />
+            <input
+              type="text"
+              id="refundDeadline"
+              className={styles.input}
+              value={refundDeadline}
+              onChange={(e) => setRefundDeadline(e.target.value)}
+            />
           </div>
 
           <div className={styles.inputGroup}>
@@ -33,11 +59,16 @@ const Body: React.FC = () => {
               transaction info
               <span className={styles.sublabel}>(serves name, plan,etc)</span>
             </label>
-            <input type="text" id="transactionInfo" className={styles.input} />
+            <input
+              type="text"
+              id="transactionInfo"
+              className={styles.input}
+              value={transactionInfo}
+              onChange={(e) => setTransactionInfo(e.target.value)}
+            />
           </div>
         </div>
-
-        <button className={styles.okButton}>OK</button>
+        <AddNewTransactionComponent sellerAddress={sellerAddress} amount={amount} refundDeadline={refundDeadline} transactionInfo={transactionInfo}/>
       </div>
     </div>
   );
