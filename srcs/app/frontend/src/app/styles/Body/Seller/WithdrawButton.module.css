@@ -1,0 +1,12 @@
+.ButtonContainer {
+  background-color: #ffdbc9;
+  color: #000000;
+  width: 90px; /* 固定幅を設定 */
+  border: none;
+  border-radius: 8px;
+  height: 38px;
+  font-size: 16px;
+
+  cursor: pointer;
+  text-align: center; /* テキストを中央揃えに */
+}

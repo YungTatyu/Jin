@@ -1,0 +1,20 @@
+.walletButton {
+  height: 20px;
+}
+/* .walletButton {
+  width: 220px;
+  height: 40px;
+  background-color: #D9D9D9;
+  color: #1F0D0A;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+}
+*/
+
+.walletButton:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}

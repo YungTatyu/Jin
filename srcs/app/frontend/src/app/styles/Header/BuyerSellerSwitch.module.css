@@ -1,0 +1,23 @@
+.switch {
+  display: flex;
+  height: 40px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.button {
+  font-size: 18px;
+  padding: 0.5rem 1rem;
+  background-color: #ffffff;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.active {
+  font-size: 18px;
+  background-color: #ff5722;
+  color: #ffffff;
+  font-weight: bold;
+}

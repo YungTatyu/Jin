@@ -1,0 +1,35 @@
+/* ボタンの基本スタイル上書き */
+.wallet-adapter-button {
+  background-color: #f24f2b;
+  height: 40px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+/* ボタンのホバー状態 */
+.wallet-adapter-button:hover {
+  background-color: #f24f2b !important; /* ホバー時の背景色を変更 */
+}
+
+/* ウォレット選択のドロップダウンメニュー */
+.wallet-adapter-dropdown {
+  background-color: #f0f0f0 !important; /* ドロップダウンの背景色を変更 */
+}
+
+/* ウォレットリストのアイテム */
+.wallet-adapter-dropdown-list-item {
+  background-color: #ffffff !important; /* リストアイテムの背景色を変更 */
+  color: #333333 !important; /* リストアイテムのテキスト色を変更 */
+}
+
+/* モーダルの背景 */
+.wallet-adapter-modal-wrapper {
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.5
+  ) !important; /* モーダルの背景を半透明に */
+}

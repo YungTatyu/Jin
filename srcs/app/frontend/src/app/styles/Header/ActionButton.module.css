@@ -1,0 +1,12 @@
+.actionButton {
+  width: 220px; /* 固定幅を設定 */
+  height: 40px;
+  background-color: #f24f2b;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center; /* テキストを中央揃えに */
+  font-size: 18px;
+  font-weight: bold;
+}
