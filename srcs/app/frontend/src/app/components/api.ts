@@ -52,7 +52,8 @@ export async function addNewTransaction(
 		});
 		await CONNECTION.confirmTransaction(signature, 'processed');
 		return true;
-	} catch {
+	} catch (e) {
+		alert(`ERROR: ${e}`);
 		return false;
 	}
 }
