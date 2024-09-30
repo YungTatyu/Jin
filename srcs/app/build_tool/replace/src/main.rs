@@ -18,9 +18,9 @@ fn replace_content(program_id: &str, replace_path: &str) -> io::Result<()> {
             &format!("declare_id!(\"{}\")", program_id),
             1,
         ),
-        Some("js") | Some("ts") => replace_content.replacen(
-            "const PROGRAM_ID = new PublicKey('Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS');",
-            &format!("const PROGRAM_ID = new PublicKey('{}');", program_id),
+        Some("js") | Some("ts") | Some("tsx") => replace_content.replacen(
+            "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS",
+            &format!("{}", program_id),
             1,
         ),
         _ => {
