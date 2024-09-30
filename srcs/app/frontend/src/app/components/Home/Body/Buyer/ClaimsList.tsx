@@ -8,10 +8,6 @@ srcs/app/frontend/src/app/components/Body/Buyer/ClaimsList.tsx
 import React, { useEffect, useState } from 'react';
 import ReturnSolButton from './ReturnSolButton';
 import styles from '../../../../styles/Body/Buyer/ClaimsList.module.css';
-import {
-  RefundableEscrowData,
-  fetchBuyerTransactions,
-} from '@/app/components/api';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection, PublicKey } from '@solana/web3.js';
 
@@ -113,3 +109,59 @@ const ClaimsList: React.FC = () => {
 };
 
 export default ClaimsList;
+
+type RefundableEscrowData = {
+  buyer_pubkey: PublicKey;
+  seller_pubkey: PublicKey;
+  transaction_id: bigint;
+  amount_lamports: bigint;
+  create_at: bigint;
+  refund_deadline: bigint;
+  is_canceled: boolean;
+  user_defined_data: string;
+};
+
+async function fetchBuyerTransactions(
+  programId: PublicKey,
+  connection: Connection,
+  buyerPubkey: PublicKey
+): Promise<RefundableEscrowData[]> {
+  const filters = [{ memcmp: { offset: 72, bytes: buyerPubkey.toBase58() } }];
+  const accounts = await connection.getParsedProgramAccounts(programId, {
+    filters: filters,
+  });
+
+  const refundableEscrowDataArray: RefundableEscrowData[] = [];
+  for (let i = 0; i < accounts.length; i++) {
+    const accountData = accounts[i].account.data;
+    if (accountData instanceof Buffer) {
+      const data = decodeRefundableEscrow(accountData);
+      refundableEscrowDataArray.push(data);
+    } else {
+      console.warn('Skipping non-Buffer account data');
+    }
+  }
+  return refundableEscrowDataArray;
+}
+
+function decodeRefundableEscrow(buffer: Buffer): RefundableEscrowData {
+  const sellerPubkey = buffer.slice(8, 40);
+  const buyerPubkey = buffer.slice(40, 72);
+  const transactionId = buffer.readBigUInt64LE(72);
+  const amountLamports = buffer.readBigUInt64LE(80);
+  const createAt = buffer.readBigInt64LE(88);
+  const refundDeadline = buffer.readBigInt64LE(96);
+  const isCanceled = buffer.readUInt8(104) !== 0;
+  const userDefinedData = buffer.slice(109).toString('utf-8');
+
+  return {
+    seller_pubkey: new PublicKey(sellerPubkey),
+    buyer_pubkey: new PublicKey(buyerPubkey),
+    transaction_id: transactionId,
+    amount_lamports: amountLamports,
+    create_at: createAt,
+    refund_deadline: refundDeadline,
+    is_canceled: isCanceled,
+    user_defined_data: userDefinedData,
+  };
+}

@@ -1,9 +1,12 @@
-import { PublicKey } from '@solana/web3.js';
+import {
+  PublicKey,
+} from '@solana/web3.js';
 import styles from '../../styles/AddNewTransaction/AddNewTransaction.module.css';
-import { AnchorProvider, Program } from '@project-serum/anchor';
+import { useAnchorWallet } from '@solana/wallet-adapter-react';
 import { addNewTransaction } from '../api';
-import { useAnchorWallet, useConnection } from '@solana/wallet-adapter-react';
-import IDL from '../../../../../target/idl/refundable_escrow.json';
+
+// import IDL from '/usr/src/project/target/idl/refundable_escrow.json';
+const IDL = require('/usr/src/project/target/idl/refundable_escrow.json');
 
 const PROGRAM_ID = new PublicKey(
   'Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS'
@@ -22,38 +25,25 @@ const AddNewTransactionComponent: React.FC<input> = ({
   refundDeadline,
   transactionInfo,
 }) => {
-  const wallet = useAnchorWallet();
-  const connection = useConnection();
-  if (!wallet) {
-    throw new Error('Wallet not connected');
-  }
-  const provider = new AnchorProvider(
-    connection.connection,
-    wallet,
-    AnchorProvider.defaultOptions()
-  );
-
-  const program: Program = new Program(IDL, PROGRAM_ID, provider);
-
+  const wallet = useAnchorWallet()
+  
   const handleAddNewTransaction = async () => {
-    if (!sellerAddress || !amount || !refundDeadline || !transactionInfo) {
+    if (
+      !sellerAddress ||
+      !amount ||
+      !refundDeadline ||
+      !transactionInfo ||
+      !wallet
+    ) {
       alert('必要な情報が不足しています');
       return;
     }
-    const sellerAdd = new PublicKey(sellerAddress);
-    const f = addNewTransaction(
-      program,
-      PROGRAM_ID,
-      sellerAdd,
-      1,
-      Number(amount),
-      Number(refundDeadline),
-      transactionInfo
-    );
-    if (!f) {
-      alert('addNewTransaction() Error');
-      return;
-    }
+    const ssss = new PublicKey(sellerAddress)
+    alert("1111111111")
+    addNewTransaction(wallet, wallet.signTransaction, wallet.publicKey, ssss, 1, Number(amount), Number(refundDeadline) * 24 * 60 * 60, transactionInfo)
+    alert("22222222222")
+
+
     alert(
       `${sellerAddress}\n${amount}\n${refundDeadline}\n${transactionInfo}\n`
     );

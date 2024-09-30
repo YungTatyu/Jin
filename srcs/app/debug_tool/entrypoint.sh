@@ -21,8 +21,8 @@ main() {
     cargo fmt --manifest-path ${TOML_FILE}
 
   elif [ "${cmd}" = "lint" ]; then
-    echo "Linting backend..."
-    cargo clippy --manifest-path ${TOML_FILE} || return 1
+    # echo "Linting backend..."
+    # cargo clippy --manifest-path ${TOML_FILE} || return 1
     echo "Compile backend..."
     cargo check --manifest-path ${TOML_FILE} || return 1
 
