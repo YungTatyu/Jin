@@ -5,11 +5,11 @@ import styles from '../../styles/AddNewTransaction/AddNewTransaction.module.css'
 import { useAnchorWallet } from '@solana/wallet-adapter-react';
 import { addNewTransaction } from '../api';
 
-const IDL = require('/usr/src/project/target/idl/refundable_escrow.json');
+// const IDL = require('/usr/src/project/target/idl/refundable_escrow.json');
 
-const PROGRAM_ID = new PublicKey(
-  'Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS'
-);
+// const PROGRAM_ID = new PublicKey(
+//   'Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS'
+// );
 
 interface input {
   sellerAddress: string;
@@ -24,9 +24,14 @@ const AddNewTransactionComponent: React.FC<input> = ({
   refundDeadline,
   transactionInfo,
 }) => {
+  console.log(1)
   const wallet = useAnchorWallet()
+  console.log(2)
   
   const handleAddNewTransaction = async () => {
+    alert(
+      `${sellerAddress}\n${amount}\n${refundDeadline}\n${transactionInfo}\n`
+    );
     if (
       !sellerAddress ||
       !amount ||
@@ -52,7 +57,7 @@ const AddNewTransactionComponent: React.FC<input> = ({
   return (
     <div>
       <button className={styles.okButton} onClick={handleAddNewTransaction}>
-        OK
+        OKAAAAAAAAAAA
       </button>
     </div>
   );
