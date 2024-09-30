@@ -42,6 +42,9 @@ export async function addNewTransaction(
 				systemProgram: SystemProgram.programId,
 			})
 			.transaction();
+		// recentBlockhashを取得し設定
+		const { blockhash } = await CONNECTION.getLatestBlockhash('finalized');
+		tx.recentBlockhash = blockhash;
 		const signedTransaction = await signTransaction(tx);
 		const signature = await CONNECTION.sendRawTransaction(signedTransaction.serialize(), {
 			skipPreflight: false,
