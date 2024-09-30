@@ -44,15 +44,6 @@ RUN npm install -g yarn
 WORKDIR /usr/src/
 RUN anchor init project
 
-# Copy front-end source code
-COPY ./frontend/ /usr/src/project/app/
-
-# Go to the directory of the copied Next.js project and install the dependencies listed in package.json.
-WORKDIR /usr/src/project/app/
-RUN npm install
-
-# Install package for front-end
-RUN npm install @solana/web3.js @project-serum/anchor
 
 # Copy back-end source code
 COPY ./backend/project/ /usr/src/project/programs/project/
@@ -64,9 +55,6 @@ COPY ./backend/tests/ /usr/src/project/tests/
 WORKDIR /usr/src/project/
 RUN anchor build
 
-# Build Next.js app
-WORKDIR /usr/src/project/app/
-RUN npm run build
 
 WORKDIR /usr/src/
 # Files to run in the container
@@ -84,6 +72,21 @@ RUN solana-keygen new --no-bip39-passphrase
 
 # Expose the port that Next.js runs on
 EXPOSE 3000
+
+# Copy front-end source code
+COPY ./frontend/ /usr/src/project/app/
+
+# Go to the directory of the copied Next.js project and install the dependencies listed in package.json.
+WORKDIR /usr/src/project/app/
+RUN npm install
+
+# Build Next.js app
+WORKDIR /usr/src/project/app/
+RUN npm run build
+
+
+# Install package for front-end
+RUN npm install @solana/web3.js @project-serum/anchor
 
 # Specify solana's local network server as the entry point
 ENTRYPOINT ["/usr/local/bin/solana-test-validator"]
