@@ -5,7 +5,6 @@ import styles from '../../styles/AddNewTransaction/AddNewTransaction.module.css'
 import { useAnchorWallet } from '@solana/wallet-adapter-react';
 import { addNewTransaction } from '../api';
 
-// import IDL from '/usr/src/project/target/idl/refundable_escrow.json';
 const IDL = require('/usr/src/project/target/idl/refundable_escrow.json');
 
 const PROGRAM_ID = new PublicKey(
@@ -40,7 +39,7 @@ const AddNewTransactionComponent: React.FC<input> = ({
     }
     const ssss = new PublicKey(sellerAddress)
     alert("1111111111")
-    let f = addNewTransaction(wallet, wallet.signTransaction, wallet.publicKey, ssss, 1, Number(amount), Number(refundDeadline) * 24 * 60 * 60, transactionInfo)
+    const f = addNewTransaction(wallet, wallet.signTransaction, wallet.publicKey, ssss, 1, Number(amount), Number(refundDeadline) * 24 * 60 * 60, transactionInfo)
     alert(`${f}`)
     alert("22222222222")
 

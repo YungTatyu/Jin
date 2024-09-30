@@ -21,7 +21,7 @@ export async function addNewTransaction(
 	transactionId: number, // 連番
 	amountLamports: number, // new Number(Userによる入力数値);
 	refundableSeconds: number, // new Number(Userによる入力数値);
-	userDefinedData: String // Userによる入力文字列
+	userDefinedData: string // Userによる入力文字列
 ): Promise<boolean> {
 	const provider = new AnchorProvider(CONNECTION, wallet, {
 		preflightCommitment: 'processed',
