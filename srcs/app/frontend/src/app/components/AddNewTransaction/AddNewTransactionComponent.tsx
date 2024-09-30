@@ -40,7 +40,8 @@ const AddNewTransactionComponent: React.FC<input> = ({
     }
     const ssss = new PublicKey(sellerAddress)
     alert("1111111111")
-    addNewTransaction(wallet, wallet.signTransaction, wallet.publicKey, ssss, 1, Number(amount), Number(refundDeadline) * 24 * 60 * 60, transactionInfo)
+    let f = addNewTransaction(wallet, wallet.signTransaction, wallet.publicKey, ssss, 1, Number(amount), Number(refundDeadline) * 24 * 60 * 60, transactionInfo)
+    alert(`${f}`)
     alert("22222222222")
 
 
