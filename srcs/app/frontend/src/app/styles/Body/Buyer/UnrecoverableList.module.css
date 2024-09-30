@@ -1,114 +1,84 @@
 .unrecoverableListContainer {
-  font-family: Arial, sans-serif;
-  width: 95%;
-  margin-top: 20px;
-  margin-left: 40px;
-  margin-right: 40px;
+  font-size: 2rem;
 }
 
 .sectionTitle {
-  color: #000000;
-  font-size: 1em;
-  margin-bottom: 10px;
-  padding-top: 10px;
-  border-bottom: 1px solid #e0e0e0;
+  font-size: 2rem;
+  padding-top: 1rem;
+  border-bottom: 2px solid #e0e0e0;
+  margin-bottom: 1rem;
 }
 
 .transactionListWrapper {
-  max-height: 300px; /* リストの最大高さを設定 */
-  overflow-y: auto; /* 縦方向のスクロールを有効にする */
+  /* リストの最大高さを設定 */
+  /* max-height: 40rem; */
+  /* 縦方向のスクロールを有効にする */ 
+  /* overflow-y: auto;  */
 }
 
 .transactionList {
   list-style-type: none;
-  padding: 0;
-  margin: 0; /* マージンを0に設定 */
 }
+
+/* .transactionItem に相当するclassなし */
 
 .transactionHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0px;
+  height: fit-content;
+  padding: 0.25rem 1rem 0rem;
+  border: 0.25rem solid #e8e6e6;
+  border-radius: 1rem 1rem 0rem 0rem;
 }
 
-.checkbox {
+/* .checkbox {
   background-color: #ffdbc9;
   color: #000000;
   height: 45px;
   width: 45px;
-  border-radius: 10px; /* 丸くするために50%を指定 */
-}
+  border-radius: 10px;
+} */
 
 .sellerInfo {
   flex-grow: 1;
-  margin-left: 20px;
 }
 
 .sellerInfo2 {
   flex-grow: 0;
-  margin-right: 116px;
+  width: 30%;
 }
 
 .sellerAddress {
-  width: 185px;
-  height: 24px;
-
-  font-family: 'Public Sans';
-  font-style: normal;
-  font-weight: 500;
-  font-size: 18px;
-  line-height: 24px;
-  /* identical to box height, or 100% */
-
-  color: #000000;
+  color: black;
+  font-weight: bold;
+  font-size: 2rem;
 }
 
-.transactionAmount {
-  width: 83px;
-  height: 24px;
-  font-family: 'Public Sans';
-  font-style: normal;
-  font-weight: 500px;
-  font-size: 14px;
-  line-height: 24px;
-  color: #ab4a36;
-}
-
-.transactionDate {
-  color: #8b4513;
-  font-size: 17px;
+.transactionAmount, .transactionDate {
+  color: #AB4A36;
 }
 
 .transactionId {
-  font-size: 13px;
-  color: #696969;
-  margin-top: 5px;
+  font-size: 1.5rem;
 }
 
 .transactionReason {
   background-color: #e8e6e6;
-  padding-left: 50px;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  margin-top: 3px;
-  margin-bottom: 12px;
-
-  font-family: 'Public Sans';
-  font-style: normal;
-  font-weight: 500;
-  font-size: 15px;
-  line-height: 21px;
-  color: #000000;
-  border-radius: 0px 0px 15px 15px;
+  padding: 0.25rem 1rem 0.5rem;
+  border-radius: 0rem 0rem 1rem 1rem;
+  /* 
+  本来、transactionItemで適用するが、相当するクラスが
+  UnrecoverableList.module.css内にないため、最下部のココに設置 
+  */
+  margin-bottom: 2rem;
 }
 
 .buttonBack {
-  background-color: #ffdbc9;
-  color: #000000;
-  width: 90px; /* 固定幅を設定 */
-  height: 38px;
+  text-align: center;
+  background-color: #e8e6e6;
+  width: 11rem;
+  height: 5rem;
   border: none;
-  border-radius: 8px;
-  text-align: center; /* テキストを中央揃えに */
+  border-radius: 1rem;
 }

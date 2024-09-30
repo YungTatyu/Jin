@@ -16,10 +16,15 @@ body {
   overflow-x: hidden;
 }
 
+html {
+  font-size: 8px; /* デフォルトのフォントサイズを継承 */
+  /* font-size: clamp(14px, 1.5vw, 16px); レスポンシブ対応 */
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: sans-serif, Arial, Helvetica;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

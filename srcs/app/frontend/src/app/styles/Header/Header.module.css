@@ -1,15 +1,18 @@
 .header {
+  position: fixed;
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
   background-color: #faf2f0;
-  border-bottom: 1px solid #f24f2b;
-  height: 65px;
+  border-bottom: 0.25rem solid #f24f2b;
+  height: 7rem;
+  padding: 0rem 7rem;
 }
 
 .rightSection {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 2rem;
+  /* height: 32px; */
 }

@@ -1,23 +1,27 @@
 .switch {
   display: flex;
-  height: 40px;
   border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  border-radius: 1rem;
   overflow: hidden;
 }
 
 .button {
-  font-size: 18px;
-  padding: 0.5rem 1rem;
-  background-color: #ffffff;
+  /* core start */
+  height: 4.5rem;
+  padding: 0rem 2rem;
+  /* color: #ffffff; */
+  /* background-color: #f24f2b; */
   border: none;
-  cursor: pointer;
+  /* border-radius: 1rem; */
+  text-align: center;
+  font-size: 2rem;
   font-weight: bold;
+  cursor: pointer;
+  /* core end */
+  background-color: #ffffff;
 }
 
 .active {
-  font-size: 18px;
-  background-color: #ff5722;
+  background-color: #f24f2b;
   color: #ffffff;
-  font-weight: bold;
 }
