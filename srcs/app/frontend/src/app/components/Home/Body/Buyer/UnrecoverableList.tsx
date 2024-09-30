@@ -73,7 +73,11 @@ function decodeRefundableEscrow(buffer: Buffer): NotRetTransaction {
   const sellerPubkey = buffer.slice(8, 40);
   const transactionId = buffer.readBigUInt64LE(72);
   const amountLamports = buffer.readBigUInt64LE(80);
-  const userDefinedData = buffer.slice(109).toString('utf-8').replace(/\u0000/g, '').trim();
+  const userDefinedData = buffer
+    .slice(109)
+    .toString('utf-8')
+    .replace(/\u0000/g, '')
+    .trim();
   const refundDeadline = buffer.readBigInt64LE(96);
 
   return {

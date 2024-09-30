@@ -67,8 +67,8 @@ async function fetchTransactions(
       console.log(`Account ${accounts[i].pubkey.toBase58()} has 0 lamports`);
       continue;
     } else {
-	  console.log("Account has:", lamports);
-	}
+      console.log('Account has:', lamports);
+    }
 
     if (Buffer.isBuffer(accountData) && is_expired_refund(accountData)) {
       const data = decodeRefundableEscrow(accountData);
@@ -82,7 +82,11 @@ function decodeRefundableEscrow(buffer: Buffer): WithdrawTransaction {
   const buyerPubkey = buffer.slice(40, 72);
   const transactionId = buffer.readBigUInt64LE(72);
   const amountLamports = buffer.readBigUInt64LE(80);
-  const userDefinedData = buffer.slice(109).toString('utf-8').replace(/\u0000/g, '').trim();
+  const userDefinedData = buffer
+    .slice(109)
+    .toString('utf-8')
+    .replace(/\u0000/g, '')
+    .trim();
   const refundDeadline = buffer.readBigInt64LE(96);
 
   return {

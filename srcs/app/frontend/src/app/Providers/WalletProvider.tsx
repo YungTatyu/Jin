@@ -29,7 +29,10 @@ export default function WalletProviderWrapper({
   const connection = useMemo(() => new Connection(endpoint), [endpoint]);
 
   const wallets = useMemo(
-    () => [new PhantomWalletAdapter({connection}), new SolflareWalletAdapter()],
+    () => [
+      new PhantomWalletAdapter({ connection }),
+      new SolflareWalletAdapter(),
+    ],
     []
   );
 

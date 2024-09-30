@@ -39,8 +39,6 @@ function is_refundable(buffer: Buffer): boolean {
   const refundDeadline = Number(buffer.readBigInt64LE(96));
   const now = Math.floor(Date.now() / 1000);
   const isCanceled = buffer.readUInt8(104) !== 0;
-  console.log("refundDeadline", refundDeadline);
-  console.log("now", now);
   return !isCanceled && now <= refundDeadline;
 }
 
@@ -65,7 +63,6 @@ async function fetchTransactions(
     const accountData = accounts[i].account.data;
     if (Buffer.isBuffer(accountData) && is_refundable(accountData)) {
       const data = decodeRefundableEscrow(accountData);
-      console.log("SUCCESS:", data);
       returnableTransactionArray.push(data);
     }
   }
@@ -76,7 +73,11 @@ function decodeRefundableEscrow(buffer: Buffer): PossibleRepaymentTransaction {
   const buyerPubkey = buffer.slice(40, 72);
   const transactionId = buffer.readBigUInt64LE(72);
   const amountLamports = buffer.readBigUInt64LE(80);
-  const userDefinedData = buffer.slice(109).toString('utf-8').replace(/\u0000/g, '').trim();
+  const userDefinedData = buffer
+    .slice(109)
+    .toString('utf-8')
+    .replace(/\u0000/g, '')
+    .trim();
   const refundDeadline = buffer.readBigInt64LE(96);
 
   return {

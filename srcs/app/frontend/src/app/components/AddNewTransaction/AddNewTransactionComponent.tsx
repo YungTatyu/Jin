@@ -1,9 +1,7 @@
-import {
-  PublicKey,
-} from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import styles from '../../styles/AddNewTransaction/AddNewTransaction.module.css';
 import { useAnchorWallet } from '@solana/wallet-adapter-react';
-import { addNewTransaction } from '../api';
+import { addNewTransaction, countTransactions } from '../api';
 
 // const IDL = require('/usr/src/project/target/idl/refundable_escrow.json');
 
@@ -24,10 +22,10 @@ const AddNewTransactionComponent: React.FC<input> = ({
   refundDeadline,
   transactionInfo,
 }) => {
-  console.log(1)
-  const wallet = useAnchorWallet()
-  console.log(2)
-  
+  console.log(1);
+  const wallet = useAnchorWallet();
+  console.log(2);
+
   const handleAddNewTransaction = async () => {
     alert(
       `${sellerAddress}\n${amount}\n${refundDeadline}\n${transactionInfo}\n`
@@ -41,10 +39,19 @@ const AddNewTransactionComponent: React.FC<input> = ({
     ) {
       return;
     }
-    const ssss = new PublicKey(sellerAddress)
-    const f = await addNewTransaction(wallet, wallet.signTransaction, wallet.publicKey, ssss, 1, Number(amount), Number(refundDeadline) * 24 * 60 * 60, transactionInfo)
-    alert(`${f}`)
-
+    const ssss = new PublicKey(sellerAddress);
+    const num_of_transactions = await countTransactions(ssss, wallet.publicKey);
+    const f = await addNewTransaction(
+      wallet,
+      wallet.signTransaction,
+      wallet.publicKey,
+      ssss,
+      num_of_transactions + 1,
+      Number(amount),
+      Number(refundDeadline) * 24 * 60 * 60,
+      transactionInfo
+    );
+    alert(`${f}`);
 
     alert(
       `${sellerAddress}\n${amount}\n${refundDeadline}\n${transactionInfo}\n`

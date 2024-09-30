@@ -160,7 +160,11 @@ function decodeRefundableEscrow(buffer: Buffer): RefundableEscrowData {
   const createAt = buffer.readBigInt64LE(88);
   const refundDeadline = buffer.readBigInt64LE(96);
   const isCanceled = buffer.readUInt8(104) !== 0;
-  const userDefinedData = buffer.slice(109).toString('utf-8').replace(/\u0000/g, '').trim();
+  const userDefinedData = buffer
+    .slice(109)
+    .toString('utf-8')
+    .replace(/\u0000/g, '')
+    .trim();
 
   return {
     seller_pubkey: new PublicKey(sellerPubkey),
