@@ -23,7 +23,7 @@ export default function WalletProviderWrapper({
 }) {
   // Localnetのエンドポイントを指定
   const endpoint = 'http://localhost:8899';
-  const network = WalletAdapterNetwork.Devnet;
+  //const network = WalletAdapterNetwork.Devnet;
   //const endpoint = useMemo(() => clusterApiUrl(network), [network]);
   // コネクションオブジェクトの作成
   const connection = useMemo(() => new Connection(endpoint), [endpoint]);

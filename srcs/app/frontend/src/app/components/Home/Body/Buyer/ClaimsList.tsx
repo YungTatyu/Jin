@@ -23,7 +23,7 @@ import { Connection, PublicKey } from '@solana/web3.js';
 //   return `${year}-${month}-${day} ${hours}:${minutes}`;
 // };
 
-const SOLANA_NETWORK = 'https://api.devnet.solana.com';
+const SOLANA_NETWORK = 'http://localhost:8899';
 const PROGRAM_ID = new PublicKey(
   'Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS'
 );
