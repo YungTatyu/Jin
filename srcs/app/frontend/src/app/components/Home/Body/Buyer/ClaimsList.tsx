@@ -121,12 +121,20 @@ type RefundableEscrowData = {
   user_defined_data: string;
 };
 
+// 返金処理されていない? and 返金期間内?
+function is_refundable(buffer: Buffer): boolean {
+  const refundDeadline = Number(buffer.readBigInt64LE(96));
+  const now = Math.floor(Date.now() / 1000);
+  const isCanceled = buffer.readUInt8(104) !== 0;
+  return !isCanceled && now <= refundDeadline;
+}
+
 async function fetchBuyerTransactions(
   programId: PublicKey,
   connection: Connection,
   buyerPubkey: PublicKey
 ): Promise<RefundableEscrowData[]> {
-  const filters = [{ memcmp: { offset: 72, bytes: buyerPubkey.toBase58() } }];
+  const filters = [{ memcmp: { offset: 40, bytes: buyerPubkey.toBase58() } }];
   const accounts = await connection.getParsedProgramAccounts(programId, {
     filters: filters,
   });
@@ -134,7 +142,7 @@ async function fetchBuyerTransactions(
   const refundableEscrowDataArray: RefundableEscrowData[] = [];
   for (let i = 0; i < accounts.length; i++) {
     const accountData = accounts[i].account.data;
-    if (accountData instanceof Buffer) {
+    if (accountData instanceof Buffer && is_refundable(accountData)) {
       const data = decodeRefundableEscrow(accountData);
       refundableEscrowDataArray.push(data);
     } else {
@@ -152,7 +160,7 @@ function decodeRefundableEscrow(buffer: Buffer): RefundableEscrowData {
   const createAt = buffer.readBigInt64LE(88);
   const refundDeadline = buffer.readBigInt64LE(96);
   const isCanceled = buffer.readUInt8(104) !== 0;
-  const userDefinedData = buffer.slice(109).toString('utf-8');
+  const userDefinedData = buffer.slice(109).toString('utf-8').replace(/\u0000/g, '').trim();
 
   return {
     seller_pubkey: new PublicKey(sellerPubkey),

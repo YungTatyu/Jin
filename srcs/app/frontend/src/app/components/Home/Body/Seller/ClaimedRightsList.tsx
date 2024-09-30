@@ -7,15 +7,21 @@ srcs/app/frontend/src/app/components/Body/Seller/ClaimedRightsList.tsx
 
 import React, { useEffect, useState } from 'react';
 import styles from '../../../../styles/Body/Seller/ClaimedRightsList.module.css';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { PublicKey, Connection } from '@solana/web3.js';
+import { Buffer } from 'buffer';
 
-const getCurrentDate = (): string => {
-  const now = new Date();
+const PROGRAM_ID = new PublicKey(
+  'Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS'
+);
+const CONNECTION = new Connection('http://localhost:8899/');
 
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0'); // 月は0から始まるので1を足す
-  const day = String(now.getDate()).padStart(2, '0');
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
+const getCurrentDate = (d: Date): string => {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0'); // 月は0から始まるので1を足す
+  const day = String(d.getDate()).padStart(2, '0');
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
 
   return `${year}-${month}-${day} ${hours}:${minutes}`;
 };
@@ -24,8 +30,62 @@ interface PossibleRepaymentTransaction {
   sellerAddress: string;
   id: string;
   transactionAmount: number;
-  deadline: string;
+  deadline: bigint;
   reason: string;
+}
+
+// 返金処理されていない? and 返金期間内?
+function is_refundable(buffer: Buffer): boolean {
+  const refundDeadline = Number(buffer.readBigInt64LE(96));
+  const now = Math.floor(Date.now() / 1000);
+  const isCanceled = buffer.readUInt8(104) !== 0;
+  console.log("refundDeadline", refundDeadline);
+  console.log("now", now);
+  return !isCanceled && now <= refundDeadline;
+}
+
+async function fetchTransactions(
+  programId: PublicKey,
+  connection: Connection,
+  sellerPubkey: PublicKey
+): Promise<PossibleRepaymentTransaction[]> {
+  const accounts = await connection.getParsedProgramAccounts(programId, {
+    filters: [
+      {
+        memcmp: {
+          offset: 8,
+          bytes: sellerPubkey.toBase58(),
+        },
+      },
+    ],
+  });
+
+  const returnableTransactionArray: PossibleRepaymentTransaction[] = [];
+  for (let i = 0; i < accounts.length; i++) {
+    const accountData = accounts[i].account.data;
+    if (Buffer.isBuffer(accountData) && is_refundable(accountData)) {
+      const data = decodeRefundableEscrow(accountData);
+      console.log("SUCCESS:", data);
+      returnableTransactionArray.push(data);
+    }
+  }
+  return returnableTransactionArray;
+}
+
+function decodeRefundableEscrow(buffer: Buffer): PossibleRepaymentTransaction {
+  const buyerPubkey = buffer.slice(40, 72);
+  const transactionId = buffer.readBigUInt64LE(72);
+  const amountLamports = buffer.readBigUInt64LE(80);
+  const userDefinedData = buffer.slice(109).toString('utf-8').replace(/\u0000/g, '').trim();
+  const refundDeadline = buffer.readBigInt64LE(96);
+
+  return {
+    sellerAddress: new PublicKey(buyerPubkey).toString(),
+    id: transactionId.toString(),
+    transactionAmount: Number(amountLamports),
+    deadline: refundDeadline,
+    reason: userDefinedData,
+  };
 }
 
 const ClaimedRightsList = () => {
@@ -33,69 +93,22 @@ const ClaimedRightsList = () => {
     PossibleRepaymentTransaction[]
   >([]);
 
-  // データ取得の例
+  const { publicKey } = useWallet();
   useEffect(() => {
     const fetchData = async () => {
-      // ここでAPIからデータを取得する
-      const data = [
-        {
-          sellerAddress: 'ユーザーA',
-          id: '1234567891085552',
-          transactionAmount: 100,
-          deadline: '2024-11-01 11:00',
-          reason: 'netflix, standard plan',
-        },
-        {
-          sellerAddress: 'ユーザーB',
-          id: '1234567891085552',
-          transactionAmount: 200,
-          deadline: '2024-11-02 11:00',
-          reason: 'netflix, standard plan',
-        },
-        {
-          sellerAddress: 'ユーザーC',
-          id: '1234567891085552',
-          transactionAmount: 150,
-          deadline: '2024-11-03 11:00',
-          reason: 'netflix, standard plan',
-        },
-        {
-          sellerAddress: 'ユーザーD',
-          id: '1234567891085552',
-          transactionAmount: 300,
-          deadline: '2024-11-04 11:00',
-          reason: 'netflix, standard plan',
-        },
-        {
-          sellerAddress: 'ユーザーE',
-          id: '1234567891085552',
-          transactionAmount: 300,
-          deadline: '2024-11-04 11:00',
-          reason: 'netflix, standard plan',
-        },
-        {
-          sellerAddress: 'ユーザーF',
-          id: '1234567891085552',
-          transactionAmount: 300,
-          deadline: '2024-11-04 11:00',
-          reason: 'netflix, standard plan',
-        },
-        {
-          sellerAddress: 'ユーザーG',
-          id: '1234567891085552',
-          transactionAmount: 300,
-          deadline: '2024-11-04 11:00',
-          reason: 'netflix, standard plan',
-        },
-        // さらに要素を追加可能
-      ];
-      setTransactions(data);
+      if (publicKey) {
+        const possibleTransactions = await fetchTransactions(
+          PROGRAM_ID,
+          CONNECTION,
+          publicKey
+        );
+        setTransactions(possibleTransactions);
+      }
     };
-
     fetchData();
-  }, []);
+  }, [publicKey]);
 
-  const nowDate = getCurrentDate();
+  const nowDate = getCurrentDate(new Date());
 
   return (
     <div className={styles.ClaimedRightsListContainer}>
