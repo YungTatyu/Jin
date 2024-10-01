@@ -116,6 +116,7 @@ const ClaimsExpiredList = () => {
     fetchData();
   }, [publicKey]);
 
+
   return (
     <div className={styles.ClaimsExpiredListContainer}>
       <h2 className={styles.sectionTitle}>Refund expired</h2>
@@ -138,7 +139,13 @@ const ClaimsExpiredList = () => {
                     Transaction ID: {transaction.id}
                   </div>
                 </div>
-                <WithdrawButton />
+                {publicKey && (
+                  <WithdrawButton 
+                    buyer_pubkey={new PublicKey(transaction.sellerAddress)} 
+                    seller_pubkey={publicKey} 
+                    transactionId={BigInt(transaction.id)} 
+                  />
+                )}
               </div>
               <div className={styles.transactionReason}>
                 {transaction.reason}

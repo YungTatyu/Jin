@@ -17,9 +17,9 @@ interface ReturnSolButtonProps {
 
 const ReturnSolButton: React.FC<ReturnSolButtonProps> = ({ buyer_pubkey, seller_pubkey, transactionId }) => {
   const wallet = useAnchorWallet();
-  const onClick = () => {
+  const onClick = async () => {
     if (wallet) {
-      const f = settleTransaction(wallet, wallet.signTransaction, wallet.publicKey, buyer_pubkey, seller_pubkey, Number(transactionId));
+      const f = await settleTransaction(wallet, wallet.signTransaction, wallet.publicKey, buyer_pubkey, seller_pubkey, Number(transactionId));
       alert(`${f}`);
     } else {
       alert(`wallet 接続されていない`);

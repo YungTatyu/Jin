@@ -10,7 +10,6 @@ import ReturnSolButton from './ReturnSolButton';
 import styles from '../../../../styles/Body/Buyer/ClaimsList.module.css';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection, PublicKey } from '@solana/web3.js';
-import { Tornado } from 'lucide-react';
 
 
 const SOLANA_NETWORK = 'http://localhost:8899';
