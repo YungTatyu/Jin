@@ -12,7 +12,7 @@
 
 .transactionListWrapper {
   /* リストの最大高さを設定 */
-  max-height: 40rem;
+  max-height: 290px;
   /* 縦方向のスクロールを有効にする */ 
   overflow-y: auto; 
 }
