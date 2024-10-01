@@ -1,4 +1,4 @@
-# Jin
+# Jin - 仁
 Jin is a secure and automated refund system.
 
 ## How it works
