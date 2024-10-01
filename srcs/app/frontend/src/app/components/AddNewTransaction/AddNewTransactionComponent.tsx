@@ -61,7 +61,7 @@ const AddNewTransactionComponent: React.FC<input> = ({
   return (
     <div>
       <button className={styles.okButton} onClick={handleAddNewTransaction}>
-        OKAAAAAAAAAAA
+        OK
       </button>
     </div>
   );

@@ -77,7 +77,7 @@ export async function addNewTransaction(
 }
 
 export async function settleTransaction(
-  wallet: Wallet, // useWallet()で取得
+  wallet: AnchorWallet, // useWallet()で取得
   signTransaction: (transaction: Transaction) => Promise<Transaction>, // useWallet()で取得
   requestorPubkey: PublicKey, // useWallet()で取得
   buyerPubkey: PublicKey, // next.jsの内部に保存されている？
@@ -103,6 +103,11 @@ export async function settleTransaction(
         escrow: escrowPDA,
       })
       .transaction();
+
+    const { blockhash } = await CONNECTION.getRecentBlockhash();
+    tx.recentBlockhash = blockhash;
+    tx.feePayer = wallet.publicKey; // 手数料の支払者を設定
+
     const signedTransaction = await signTransaction(tx);
     const signature = await CONNECTION.sendRawTransaction(
       signedTransaction.serialize(),

@@ -10,18 +10,8 @@ import ReturnSolButton from './ReturnSolButton';
 import styles from '../../../../styles/Body/Buyer/ClaimsList.module.css';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection, PublicKey } from '@solana/web3.js';
+import { Tornado } from 'lucide-react';
 
-// const getCurrentDate = (): string => {
-//   const now = new Date();
-
-//   const year = now.getFullYear();
-//   const month = String(now.getMonth() + 1).padStart(2, '0'); // 月は0から始まるので1を足す
-//   const day = String(now.getDate()).padStart(2, '0');
-//   const hours = String(now.getHours()).padStart(2, '0');
-//   const minutes = String(now.getMinutes()).padStart(2, '0');
-
-//   return `${year}-${month}-${day} ${hours}:${minutes}`;
-// };
 
 const SOLANA_NETWORK = 'http://localhost:8899';
 const PROGRAM_ID = new PublicKey(
@@ -91,7 +81,7 @@ const ClaimsList: React.FC = () => {
                   </div>
                 </div>
                 {!transaction.is_canceled && (
-                  <ReturnSolButton buyer_pubkey={transaction.buyer_pubkey} />
+                  <ReturnSolButton buyer_pubkey={transaction.buyer_pubkey} seller_pubkey={transaction.seller_pubkey} transactionId={transaction.transaction_id} />
                 )}
               </div>
               <div className={styles.transactionReason}>
