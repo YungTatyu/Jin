@@ -122,6 +122,10 @@ const ClaimsExpiredList = () => {
     fetchData();
   }, [publicKey]);
 
+  const formatAmount = (lamports: bigint): string => {
+    return (Number(lamports) / 1e9).toFixed(9);
+  };
+
   return (
     <div className={styles.ClaimsExpiredListContainer}>
       <h2 className={styles.sectionTitle}>Refund expired</h2>
@@ -135,7 +139,7 @@ const ClaimsExpiredList = () => {
                     {transaction.buyerAddress}
                   </div>
                   <div className={styles.transactionAmount}>
-                    {transaction.transactionAmount} SOL
+                    { formatAmount(BigInt(transaction.transactionAmount)) } SOL
                   </div>
                 </div>
                 <div className={styles.sellerInfo2}>

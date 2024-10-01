@@ -46,6 +46,7 @@ const ClaimsList: React.FC = () => {
       fetchData();
     }
   }, [publicKey]);
+
   const formatDate = (timestamp: bigint): string => {
     return new Date(Number(timestamp) * 1000).toLocaleString();
   };
