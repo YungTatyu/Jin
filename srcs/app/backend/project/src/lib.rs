@@ -1,10 +1,15 @@
 use anchor_lang::prelude::*;
-use anchor_lang::solana_program::{program::invoke, system_instruction};
+use errors::ErrorCode;
+use state::{RefundableEscrow, USER_DEFINED_DATA_SIZE};
+use utils::{transfer_lamports_from_pda, transfer_lamports_to_pda};
+
+mod errors;
+mod state;
+mod utils;
 
 // Specify program ID
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
-const USER_DEFINED_DATA_SIZE: usize = 100;
 const MAX_REFUNDABLE_SECONDS: i64 = 60 * 60 * 24 * 365;
 
 #[program]
@@ -92,39 +97,6 @@ pub mod refundable_escrow {
     }
 }
 
-// transfer from(UserAccount) -> to(PDA)
-fn transfer_lamports_to_pda<'info>(
-    from: AccountInfo<'info>,
-    to: AccountInfo<'info>,
-    system_program: AccountInfo<'info>,
-    amount_lamports: u64,
-) -> Result<()> {
-    let ix = system_instruction::transfer(&from.key(), &to.key(), amount_lamports);
-    match invoke(&ix, &[from, to, system_program]) {
-        Ok(_) => Ok(()),
-        Err(_) => Err(ErrorCode::BuyerUnderfundedError.into()),
-    }
-}
-
-// transfer from(PDA) -> to(UserAccount)
-fn transfer_lamports_from_pda(
-    from: &AccountInfo,
-    to: &AccountInfo,
-    amount_lamports: u64,
-) -> Result<()> {
-    let mut from_lamports = from.try_borrow_mut_lamports()?;
-    let mut to_lamports = to.try_borrow_mut_lamports()?;
-
-    // Check whether the expected balance exists in the PDA
-    if **from_lamports < amount_lamports {
-        return Err(ErrorCode::CashShortageError.into());
-    }
-
-    **from_lamports -= amount_lamports;
-    **to_lamports += amount_lamports;
-    Ok(())
-}
-
 #[derive(Accounts)]
 #[instruction(transaction_id: u64)]
 pub struct CreateRefundableEscrow<'info> {
@@ -161,40 +133,4 @@ pub struct SettleLamports<'info> {
     // PDA created by CreateRefundableEscrow
     #[account(mut)]
     escrow: Account<'info, RefundableEscrow>,
-}
-
-#[account]
-pub struct RefundableEscrow {
-    seller_pubkey: Pubkey,     // 32
-    buyer_pubkey: Pubkey,      // 32
-    transaction_id: u64,       // 8
-    amount_lamports: u64,      // 8
-    create_at: i64,            // 8 (unix_timestamp)
-    refund_deadline: i64,      // 8 (unix_timestamp)
-    is_canceled: bool,         // 1
-    user_defined_data: String, // 4 + variable_size
-}
-
-impl RefundableEscrow {
-    pub const LEN: usize = 32 + 32 + 8 + 8 + 8 + 8 + 1 + 4 + USER_DEFINED_DATA_SIZE;
-}
-
-#[error_code]
-pub enum ErrorCode {
-    #[msg("Buyer doesn't hold the required lamports.")]
-    BuyerUnderfundedError,
-    #[msg("Invalid account provided.")]
-    InvalidAccountError,
-    #[msg("Refund period has expired.")]
-    RefundError,
-    #[msg("Withdrawals are not available during thr refund period.")]
-    FundraisingError,
-    #[msg("There are no funds available to withdraw.")]
-    CashShortageError,
-    #[msg("User defined data size is too large.")]
-    UserDefinedDataTooLarge,
-    #[msg("Refundable seconds is invalid.")]
-    RefundableSecondsError,
-    #[msg("Transaction amount is too small.")]
-    AmountTooSmall,
 }
