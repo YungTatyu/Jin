@@ -27,7 +27,7 @@ const getCurrentDate = (d: Date): string => {
 };
 
 interface PossibleRepaymentTransaction {
-  sellerAddress: string;
+  buyerAddress: string;
   id: string;
   transactionAmount: number;
   deadline: bigint;
@@ -81,7 +81,7 @@ function decodeRefundableEscrow(buffer: Buffer): PossibleRepaymentTransaction {
   const refundDeadline = buffer.readBigInt64LE(96);
 
   return {
-    sellerAddress: new PublicKey(buyerPubkey).toString(),
+    buyerAddress: new PublicKey(buyerPubkey).toString(),
     id: transactionId.toString(),
     transactionAmount: Number(amountLamports),
     deadline: refundDeadline,
@@ -121,7 +121,7 @@ const ClaimedRightsList = () => {
               <div className={styles.transactionHeader}>
                 <div className={styles.sellerInfo}>
                   <div className={styles.sellerAddress}>
-                    {transaction.sellerAddress}
+                    {transaction.buyerAddress}
                   </div>
                   <div className={styles.transactionAmount}>
                     {transaction.transactionAmount} SOL

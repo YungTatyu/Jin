@@ -1,12 +1,17 @@
 .actionButton {
-  width: 220px; /* 固定幅を設定 */
-  height: 40px;
-  background-color: #f24f2b;
+  /* 
+  以下のプロパティが.rightSection内のボタンのコアプロパティ
+  */
+  height: 4.5rem;
+  /* padding: 0rem 1rem; */
   color: #ffffff;
+  background-color: #f24f2b;
   border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  text-align: center; /* テキストを中央揃えに */
-  font-size: 18px;
+  border-radius: 1rem;
+  text-align: center;
+  font-size: 2rem;
   font-weight: bold;
+  cursor: pointer;
+  /* end */
+  width: 23rem;
 }
