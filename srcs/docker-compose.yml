@@ -10,6 +10,8 @@ services:
     stdin_open: true
     ports:
       - "3000:3000"
+      - "8899:8899"
+      - "8900:8900"
     environment:
       - FRONTEND_ROOT=./project/app/src/app
       - BACKEND_ROOT=./project/programs/project/src

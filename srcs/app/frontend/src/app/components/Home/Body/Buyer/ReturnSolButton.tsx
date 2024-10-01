@@ -5,10 +5,37 @@ srcs/app/frontend/src/app/components/Body/Buyer/ReturnSolButton.tsx
 
 import React from 'react';
 import styles from '../../../../styles/Body/Buyer/ReturnSolButton.module.css';
+import { PublicKey } from '@solana/web3.js';
+import { settleTransaction } from '@/app/components/api';
+import { useAnchorWallet } from '@solana/wallet-adapter-react';
 
-const ReturnSolButton = () => {
-  const onClick = () => {
-    alert('Hello, world!');
+interface ReturnSolButtonProps {
+  buyer_pubkey: PublicKey;
+  seller_pubkey: PublicKey;
+  transactionId: bigint;
+}
+
+const ReturnSolButton: React.FC<ReturnSolButtonProps> = ({
+  buyer_pubkey,
+  seller_pubkey,
+  transactionId,
+}) => {
+  const wallet = useAnchorWallet();
+  const onClick = async () => {
+    if (wallet) {
+      const f = await settleTransaction(
+        wallet,
+        wallet.signTransaction,
+        wallet.publicKey,
+        buyer_pubkey,
+        seller_pubkey,
+        Number(transactionId)
+      );
+      alert(`${f}`);
+    } else {
+      alert(`wallet 接続されていない`);
+    }
+    alert(`Hello! ${buyer_pubkey}`);
   };
   return (
     <button className={styles.ButtonContainer} onClick={onClick}>

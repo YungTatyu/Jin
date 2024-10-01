@@ -7,95 +7,102 @@ srcs/app/frontend/src/app/components/Body/Buyer/UnrecoverableList.tsx
 
 import React, { useEffect, useState } from 'react';
 import styles from '../../../../styles/Body/Buyer/UnrecoverableList.module.css';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { PublicKey, Connection } from '@solana/web3.js';
+import { Buffer } from 'buffer';
+import { TransactionData } from '../TransactionData';
 
-/*
-const getCurrentDate = (): string => {
-  const now = new Date();
-
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0'); // 月は0から始まるので1を足す
-  const day = String(now.getDate()).padStart(2, '0');
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-
-  return `${year}-${month}-${day} ${hours}:${minutes}`;
-};
-*/
+const PROGRAM_ID = new PublicKey(
+  'Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS'
+);
+const CONNECTION = new Connection('http://localhost:8899/');
 
 interface NotRetTransaction {
   sellerAddress: string;
   id: string;
   transactionAmount: number;
-  deadline: string;
+  deadline: bigint;
   reason: string;
+}
+
+// 返金期間外?
+function is_expired_refund(buffer: Buffer): boolean {
+  const refundDeadline = buffer.readBigInt64LE(TransactionData.REFUND_DEADLINE);
+  const now = Math.floor(Date.now() / 1000);
+  return refundDeadline < now;
+}
+
+// 買い手の公開鍵が引数と一致し、返金処理可能な取引を取得
+async function fetchTransactions(
+  programId: PublicKey,
+  connection: Connection,
+  buyerPubkey: PublicKey
+): Promise<NotRetTransaction[]> {
+  const accounts = await connection.getParsedProgramAccounts(programId, {
+    filters: [
+      {
+        memcmp: {
+          offset: TransactionData.BUYER_PUBKEY,
+          bytes: buyerPubkey.toBase58(),
+        },
+      },
+    ],
+  });
+
+  const returnableTransactionArray: NotRetTransaction[] = [];
+  for (let i = 0; i < accounts.length; i++) {
+    const accountData = accounts[i].account.data;
+    if (Buffer.isBuffer(accountData) && is_expired_refund(accountData)) {
+      const data = decodeRefundableEscrow(accountData);
+      returnableTransactionArray.push(data);
+    }
+  }
+  return returnableTransactionArray;
+}
+
+function decodeRefundableEscrow(buffer: Buffer): NotRetTransaction {
+  const sellerPubkey = buffer.slice(
+    TransactionData.SELLER_PUBKEY,
+    TransactionData.BUYER_PUBKEY
+  );
+  const transactionId = buffer.readBigUInt64LE(TransactionData.TRANSACTION_ID);
+  const amountLamports = buffer.readBigUInt64LE(
+    TransactionData.AMOUNT_LAMPORTS
+  );
+  const userDefinedData = buffer
+    .slice(TransactionData.USER_DEFINED_DATA)
+    .toString('utf-8')
+    .replace(/\u0000/g, '')
+    .trim();
+  const refundDeadline = buffer.readBigInt64LE(TransactionData.REFUND_DEADLINE);
+
+  return {
+    sellerAddress: new PublicKey(sellerPubkey).toString(),
+    id: transactionId.toString(),
+    transactionAmount: Number(amountLamports),
+    deadline: refundDeadline,
+    reason: userDefinedData,
+  };
 }
 
 const UnrecoverableList = () => {
   const [transactions, setTransactions] = useState<NotRetTransaction[]>([]);
 
-  // データ取得の例
+  const { publicKey } = useWallet();
   useEffect(() => {
     const fetchData = async () => {
-      // ここでAPIからデータを取得する
-      const transactions: NotRetTransaction[] = [
-        {
-          sellerAddress: 'ユーザーA`',
-          id: '1234567891085552',
-          transactionAmount: 100,
-          deadline: '2024-09-01 11:00',
-          reason: 'netflix, standard plan',
-        },
-        {
-          sellerAddress: 'ユーザーB`',
-          id: '1234567891085552',
-          transactionAmount: 200,
-          deadline: '2024-09-02 11:00',
-          reason: 'netflix, standard plan',
-        },
-        {
-          sellerAddress: 'ユーザーC`',
-          id: '1234567891085552',
-          transactionAmount: 150,
-          deadline: '2024-09-03 11:00',
-          reason: 'netflix, standard plan',
-        },
-        {
-          sellerAddress: 'ユーザーD`',
-          id: '1234567891085552',
-          transactionAmount: 300,
-          deadline: '2024-09-04 11:00',
-          reason: 'netflix, standard plan',
-        },
-        {
-          sellerAddress: 'ユーザーE`',
-          id: '1234567891085552',
-          transactionAmount: 300,
-          deadline: '2024-09-04 11:00',
-          reason: 'netflix, standard plan',
-        },
-        {
-          sellerAddress: 'ユーザーF`',
-          id: '1234567891085552',
-          transactionAmount: 300,
-          deadline: '2024-09-04 11:00',
-          reason: 'netflix, standard plan',
-        },
-        {
-          sellerAddress: 'ユーザーG`',
-          id: '1234567891085552',
-          transactionAmount: 300,
-          deadline: '2024-09-04 11:00',
-          reason: 'netflix, standard plan',
-        },
-        // さらに要素を追加可能
-      ];
-      setTransactions(transactions);
+      if (publicKey) {
+        const returnedTransactions = await fetchTransactions(
+          PROGRAM_ID,
+          CONNECTION,
+          publicKey
+        );
+        setTransactions(returnedTransactions);
+      }
     };
-
     fetchData();
-  }, []);
+  }, [publicKey]);
 
-  //const nowDate = getCurrentDate();
   return (
     <div className={styles.unrecoverableListContainer}>
       <h2 className={styles.sectionTitle}>Refund expired</h2>

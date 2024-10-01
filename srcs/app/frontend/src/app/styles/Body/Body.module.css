@@ -1,4 +1,12 @@
 .bodyContainer {
   background-color: #faf2f0;
-  height: 750px;
+  height: auto;
+  padding:  7rem 7rem 1rem;
+}
+
+.bodyContainer p {
+  padding-top: 3rem;
+  font-size: 2rem;
+  font-weight: bold;
+  height: 65rem;
 }
