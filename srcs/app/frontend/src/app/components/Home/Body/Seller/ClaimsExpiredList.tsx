@@ -61,13 +61,13 @@ async function fetchTransactions(
   const returnableTransactionArray: WithdrawTransaction[] = [];
   for (let i = 0; i < accounts.length; i++) {
     const accountData = accounts[i].account.data;
-	
-	// Buffer型かをチェック
-	if (!Buffer.isBuffer(accountData)) {
-      continue;
-	}
 
-	// PDAに残高が存在するかをチェック
+    // Buffer型かをチェック
+    if (!Buffer.isBuffer(accountData)) {
+      continue;
+    }
+
+    // PDAに残高が存在するかをチェック
     // (取引した金額 <= PDAの残高)
     const lamports = accounts[i].account.lamports; // 残高
     const amountLamports = accountData.readBigUInt64LE(80); // 取引額
@@ -75,7 +75,7 @@ async function fetchTransactions(
       continue;
     }
 
-	// 返金期間外 && キャンセルされていない
+    // 返金期間外 && キャンセルされていない
     if (is_expired_refund(accountData)) {
       const data = decodeRefundableEscrow(accountData);
       returnableTransactionArray.push(data);
@@ -122,7 +122,6 @@ const ClaimsExpiredList = () => {
     fetchData();
   }, [publicKey]);
 
-
   return (
     <div className={styles.ClaimsExpiredListContainer}>
       <h2 className={styles.sectionTitle}>Refund expired</h2>
@@ -146,10 +145,10 @@ const ClaimsExpiredList = () => {
                   </div>
                 </div>
                 {publicKey && (
-                  <WithdrawButton 
-                    buyer_pubkey={new PublicKey(transaction.buyerAddress)} 
-                    seller_pubkey={publicKey} 
-                    transactionId={BigInt(transaction.id)} 
+                  <WithdrawButton
+                    buyer_pubkey={new PublicKey(transaction.buyerAddress)}
+                    seller_pubkey={publicKey}
+                    transactionId={BigInt(transaction.id)}
                   />
                 )}
               </div>

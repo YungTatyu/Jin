@@ -11,7 +11,6 @@ import styles from '../../../../styles/Body/Buyer/ClaimsList.module.css';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection, PublicKey } from '@solana/web3.js';
 
-
 const SOLANA_NETWORK = 'http://localhost:8899';
 const PROGRAM_ID = new PublicKey(
   'Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS'
@@ -80,7 +79,11 @@ const ClaimsList: React.FC = () => {
                   </div>
                 </div>
                 {!transaction.is_canceled && (
-                  <ReturnSolButton buyer_pubkey={transaction.buyer_pubkey} seller_pubkey={transaction.seller_pubkey} transactionId={transaction.transaction_id} />
+                  <ReturnSolButton
+                    buyer_pubkey={transaction.buyer_pubkey}
+                    seller_pubkey={transaction.seller_pubkey}
+                    transactionId={transaction.transaction_id}
+                  />
                 )}
               </div>
               <div className={styles.transactionReason}>
