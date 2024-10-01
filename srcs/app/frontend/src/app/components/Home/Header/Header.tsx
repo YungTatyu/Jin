@@ -18,7 +18,7 @@ const Header: React.FC<HeaderProps> = ({ isBuyer, onBuyerSellerSwitch }) => {
       <JinLogo />
       <div className={styles.rightSection}>
         <BuyerSellerSwitch isBuyer={isBuyer} onSwitch={onBuyerSellerSwitch} />
-        {isBuyer ? <AddNewTransactionButton /> : <WithdrawAllButton />}
+        <AddNewTransactionButton />
         <ConnectWalletButton />
       </div>
     </header>
