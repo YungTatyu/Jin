@@ -1,17 +1,27 @@
-.actionButton {
-  /* 
-  以下のプロパティが.rightSection内のボタンのコアプロパティ
-  */
-  height: 4.5rem;
-  /* padding: 0rem 1rem; */
-  color: #ffffff;
-  background-color: #f24f2b;
-  border: none;
+.switch {
+  display: flex;
+  border: 1px solid #e0e0e0;
   border-radius: 1rem;
+  overflow: hidden;
+}
+
+.button {
+  /* core start */
+  height: 4.5rem;
+  padding: 0rem 2rem;
+  /* color: #ffffff; */
+  /* background-color: #f24f2b; */
+  border: none;
+  /* border-radius: 1rem; */
   text-align: center;
   font-size: 2rem;
   font-weight: bold;
   cursor: pointer;
-  /* end */
-  width: 23rem;
+  /* core end */
+  background-color: #ffffff;
+}
+
+.active {
+  background-color: #f24f2b;
+  color: #ffffff;
 }

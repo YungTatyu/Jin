@@ -15,7 +15,7 @@
 }
 
 /* ボタンのホバー状態 */
-.wallet-adapter-button:hover,
+.wallet-adapter-button:hover, 
 .wallet-adapter-modal-wrapper .wallet-adapter-button:hover {
   background-color: #f24f2b !important; /* ホバー時の背景色を変更 */
 }
