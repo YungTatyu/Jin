@@ -61,16 +61,22 @@ async function fetchTransactions(
   const returnableTransactionArray: WithdrawTransaction[] = [];
   for (let i = 0; i < accounts.length; i++) {
     const accountData = accounts[i].account.data;
-    const lamports = accounts[i].account.lamports;
-
-    if (lamports === 0) {
-      console.log(`Account ${accounts[i].pubkey.toBase58()} has 0 lamports`);
+	
+	// Buffer型かをチェック
+	if (!Buffer.isBuffer(accountData)) {
       continue;
-    } else {
-      console.log('Account has:', lamports);
+	}
+
+	// PDAに残高が存在するかをチェック
+    // (取引した金額 <= PDAの残高)
+    const lamports = accounts[i].account.lamports; // 残高
+    const amountLamports = accountData.readBigUInt64LE(80); // 取引額
+    if (lamports < amountLamports) {
+      continue;
     }
 
-    if (Buffer.isBuffer(accountData) && is_expired_refund(accountData)) {
+	// 返金期間外 && キャンセルされていない
+    if (is_expired_refund(accountData)) {
       const data = decodeRefundableEscrow(accountData);
       returnableTransactionArray.push(data);
     }
