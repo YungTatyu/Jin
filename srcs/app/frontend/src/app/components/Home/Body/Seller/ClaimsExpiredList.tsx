@@ -11,21 +11,12 @@ import styles from '../../../../styles/Body/Seller/ClaimsExpiredList.module.css'
 import { useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey, Connection } from '@solana/web3.js';
 import { Buffer } from 'buffer';
+import { TransactionData } from '../TransactionData';
 
 const PROGRAM_ID = new PublicKey(
   'Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS'
 );
 const CONNECTION = new Connection('http://localhost:8899/');
-
-const getCurrentDate = (d: Date): string => {
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0'); // 月は0から始まるので1を足す
-  const day = String(d.getDate()).padStart(2, '0');
-  const hours = String(d.getHours()).padStart(2, '0');
-  const minutes = String(d.getMinutes()).padStart(2, '0');
-
-  return `${year}-${month}-${day} ${hours}:${minutes}`;
-};
 
 interface WithdrawTransaction {
   buyerAddress: string;
@@ -36,7 +27,9 @@ interface WithdrawTransaction {
 }
 
 function is_expired_refund(buffer: Buffer): boolean {
-  const refundDeadline = Number(buffer.readBigInt64LE(96));
+  const refundDeadline = Number(
+    buffer.readBigInt64LE(TransactionData.REFUND_DEADLINE)
+  );
   const now = Math.floor(Date.now() / 1000);
   return refundDeadline < now;
 }
@@ -51,7 +44,7 @@ async function fetchTransactions(
     filters: [
       {
         memcmp: {
-          offset: 8,
+          offset: TransactionData.SELLER_PUBKEY,
           bytes: sellerPubkey.toBase58(),
         },
       },
@@ -70,7 +63,9 @@ async function fetchTransactions(
     // PDAに残高が存在するかをチェック
     // (取引した金額 <= PDAの残高)
     const lamports = accounts[i].account.lamports; // 残高
-    const amountLamports = accountData.readBigUInt64LE(80); // 取引額
+    const amountLamports = accountData.readBigUInt64LE(
+      TransactionData.AMOUNT_LAMPORTS
+    ); // 取引額
     if (lamports < amountLamports) {
       continue;
     }
@@ -85,15 +80,20 @@ async function fetchTransactions(
 }
 
 function decodeRefundableEscrow(buffer: Buffer): WithdrawTransaction {
-  const buyerPubkey = buffer.slice(40, 72);
-  const transactionId = buffer.readBigUInt64LE(72);
-  const amountLamports = buffer.readBigUInt64LE(80);
+  const buyerPubkey = buffer.slice(
+    TransactionData.BUYER_PUBKEY,
+    TransactionData.SELLER_PUBKEY
+  );
+  const transactionId = buffer.readBigUInt64LE(TransactionData.TRANSACTION_ID);
+  const amountLamports = buffer.readBigUInt64LE(
+    TransactionData.AMOUNT_LAMPORTS
+  );
   const userDefinedData = buffer
-    .slice(109)
+    .slice(TransactionData.USER_DEFINED_DATA)
     .toString('utf-8')
     .replace(/\u0000/g, '')
     .trim();
-  const refundDeadline = buffer.readBigInt64LE(96);
+  const refundDeadline = buffer.readBigInt64LE(TransactionData.REFUND_DEADLINE);
 
   return {
     buyerAddress: new PublicKey(buyerPubkey).toString(),

@@ -10,6 +10,7 @@ import ReturnSolButton from './ReturnSolButton';
 import styles from '../../../../styles/Body/Buyer/ClaimsList.module.css';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection, PublicKey } from '@solana/web3.js';
+import { TransactionData } from '../TransactionData';
 
 const SOLANA_NETWORK = 'http://localhost:8899';
 const PROGRAM_ID = new PublicKey(
@@ -115,9 +116,11 @@ type RefundableEscrowData = {
 
 // 返金処理されていない? and 返金期間内?
 function is_refundable(buffer: Buffer): boolean {
-  const refundDeadline = Number(buffer.readBigInt64LE(96));
+  const refundDeadline = Number(
+    buffer.readBigInt64LE(TransactionData.REFUND_DEADLINE)
+  );
   const now = Math.floor(Date.now() / 1000);
-  const isCanceled = buffer.readUInt8(104) !== 0;
+  const isCanceled = buffer.readUInt8(TransactionData.IS_CANCELED) !== 0;
   return !isCanceled && now <= refundDeadline;
 }
 
@@ -126,7 +129,14 @@ async function fetchBuyerTransactions(
   connection: Connection,
   buyerPubkey: PublicKey
 ): Promise<RefundableEscrowData[]> {
-  const filters = [{ memcmp: { offset: 40, bytes: buyerPubkey.toBase58() } }];
+  const filters = [
+    {
+      memcmp: {
+        offset: TransactionData.BUYER_PUBKEY,
+        bytes: buyerPubkey.toBase58(),
+      },
+    },
+  ];
   const accounts = await connection.getParsedProgramAccounts(programId, {
     filters: filters,
   });
@@ -145,15 +155,23 @@ async function fetchBuyerTransactions(
 }
 
 function decodeRefundableEscrow(buffer: Buffer): RefundableEscrowData {
-  const sellerPubkey = buffer.slice(8, 40);
-  const buyerPubkey = buffer.slice(40, 72);
-  const transactionId = buffer.readBigUInt64LE(72);
-  const amountLamports = buffer.readBigUInt64LE(80);
-  const createAt = buffer.readBigInt64LE(88);
-  const refundDeadline = buffer.readBigInt64LE(96);
-  const isCanceled = buffer.readUInt8(104) !== 0;
+  const sellerPubkey = buffer.slice(
+    TransactionData.SELLER_PUBKEY,
+    TransactionData.BUYER_PUBKEY
+  );
+  const buyerPubkey = buffer.slice(
+    TransactionData.BUYER_PUBKEY,
+    TransactionData.TRANSACTION_ID
+  );
+  const transactionId = buffer.readBigUInt64LE(TransactionData.TRANSACTION_ID);
+  const amountLamports = buffer.readBigUInt64LE(
+    TransactionData.AMOUNT_LAMPORTS
+  );
+  const createAt = buffer.readBigInt64LE(TransactionData.CREATE_AT);
+  const refundDeadline = buffer.readBigInt64LE(TransactionData.REFUND_DEADLINE);
+  const isCanceled = buffer.readUInt8(TransactionData.IS_CANCELED) !== 0;
   const userDefinedData = buffer
-    .slice(109)
+    .slice(TransactionData.USER_DEFINED_DATA)
     .toString('utf-8')
     .replace(/\u0000/g, '')
     .trim();

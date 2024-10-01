@@ -7,7 +7,6 @@ import UnrecoverableList from './Buyer/UnrecoverableList';
 import { useWallet } from '@solana/wallet-adapter-react';
 import ClaimedRightsList from './Seller/ClaimedRightsList';
 import ClaimsExpiredList from './Seller/ClaimsExpiredList';
-import { useAnchorWallet } from '@solana/wallet-adapter-react';
 
 interface BodyProps {
   isBuyer: boolean;

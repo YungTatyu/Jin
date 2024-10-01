@@ -7,7 +7,7 @@ import {
 } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 //import { AnchorProvider, Program, BN } from "@coral-xyz/anchor";
-import { AnchorProvider, Program, BN, Wallet } from '@project-serum/anchor';
+import { AnchorProvider, Program, BN } from '@project-serum/anchor';
 import { AnchorWallet } from '@solana/wallet-adapter-react';
 
 // anchor deploy 時に出力されるIDで書き換える
@@ -138,7 +138,7 @@ export async function getEscrowPDA(
     transactionIdBuffer,
   ];
 
-  const [escrowPDA, _] = await PublicKey.findProgramAddress(seeds, programId);
+  const [escrowPDA] = await PublicKey.findProgramAddress(seeds, programId);
   return escrowPDA;
 }
 

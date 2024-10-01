@@ -10,6 +10,7 @@ import styles from '../../../../styles/Body/Seller/ClaimedRightsList.module.css'
 import { useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey, Connection } from '@solana/web3.js';
 import { Buffer } from 'buffer';
+import { TransactionData } from '../TransactionData';
 
 const PROGRAM_ID = new PublicKey(
   'Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS'
@@ -36,9 +37,11 @@ interface PossibleRepaymentTransaction {
 
 // 返金処理されていない? and 返金期間内?
 function is_refundable(buffer: Buffer): boolean {
-  const refundDeadline = Number(buffer.readBigInt64LE(96));
+  const refundDeadline = Number(
+    buffer.readBigInt64LE(TransactionData.REFUND_DEADLINE)
+  );
   const now = Math.floor(Date.now() / 1000);
-  const isCanceled = buffer.readUInt8(104) !== 0;
+  const isCanceled = buffer.readUInt8(TransactionData.IS_CANCELED) !== 0;
   return !isCanceled && now <= refundDeadline;
 }
 
@@ -51,7 +54,7 @@ async function fetchTransactions(
     filters: [
       {
         memcmp: {
-          offset: 8,
+          offset: TransactionData.SELLER_PUBKEY,
           bytes: sellerPubkey.toBase58(),
         },
       },
@@ -70,15 +73,20 @@ async function fetchTransactions(
 }
 
 function decodeRefundableEscrow(buffer: Buffer): PossibleRepaymentTransaction {
-  const buyerPubkey = buffer.slice(40, 72);
-  const transactionId = buffer.readBigUInt64LE(72);
-  const amountLamports = buffer.readBigUInt64LE(80);
+  const buyerPubkey = buffer.slice(
+    TransactionData.BUYER_PUBKEY,
+    TransactionData.TRANSACTION_ID
+  );
+  const transactionId = buffer.readBigUInt64LE(TransactionData.TRANSACTION_ID);
+  const amountLamports = buffer.readBigUInt64LE(
+    TransactionData.AMOUNT_LAMPORTS
+  );
   const userDefinedData = buffer
-    .slice(109)
+    .slice(TransactionData.USER_DEFINED_DATA)
     .toString('utf-8')
     .replace(/\u0000/g, '')
     .trim();
-  const refundDeadline = buffer.readBigInt64LE(96);
+  const refundDeadline = buffer.readBigInt64LE(TransactionData.REFUND_DEADLINE);
 
   return {
     buyerAddress: new PublicKey(buyerPubkey).toString(),

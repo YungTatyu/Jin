@@ -10,21 +10,12 @@ import styles from '../../../../styles/Body/Buyer/UnrecoverableList.module.css';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey, Connection } from '@solana/web3.js';
 import { Buffer } from 'buffer';
+import { TransactionData } from '../TransactionData';
 
 const PROGRAM_ID = new PublicKey(
   'Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS'
 );
 const CONNECTION = new Connection('http://localhost:8899/');
-
-const getCurrentDate = (d: Date): string => {
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0'); // 月は0から始まるので1を足す
-  const day = String(d.getDate()).padStart(2, '0');
-  const hours = String(d.getHours()).padStart(2, '0');
-  const minutes = String(d.getMinutes()).padStart(2, '0');
-
-  return `${year}-${month}-${day} ${hours}:${minutes}`;
-};
 
 interface NotRetTransaction {
   sellerAddress: string;
@@ -36,7 +27,7 @@ interface NotRetTransaction {
 
 // 返金期間外?
 function is_expired_refund(buffer: Buffer): boolean {
-  const refundDeadline = buffer.readBigInt64LE(96);
+  const refundDeadline = buffer.readBigInt64LE(TransactionData.REFUND_DEADLINE);
   const now = Math.floor(Date.now() / 1000);
   return refundDeadline < now;
 }
@@ -51,7 +42,7 @@ async function fetchTransactions(
     filters: [
       {
         memcmp: {
-          offset: 40,
+          offset: TransactionData.BUYER_PUBKEY,
           bytes: buyerPubkey.toBase58(),
         },
       },
@@ -70,15 +61,20 @@ async function fetchTransactions(
 }
 
 function decodeRefundableEscrow(buffer: Buffer): NotRetTransaction {
-  const sellerPubkey = buffer.slice(8, 40);
-  const transactionId = buffer.readBigUInt64LE(72);
-  const amountLamports = buffer.readBigUInt64LE(80);
+  const sellerPubkey = buffer.slice(
+    TransactionData.SELLER_PUBKEY,
+    TransactionData.BUYER_PUBKEY
+  );
+  const transactionId = buffer.readBigUInt64LE(TransactionData.TRANSACTION_ID);
+  const amountLamports = buffer.readBigUInt64LE(
+    TransactionData.AMOUNT_LAMPORTS
+  );
   const userDefinedData = buffer
-    .slice(109)
+    .slice(TransactionData.USER_DEFINED_DATA)
     .toString('utf-8')
     .replace(/\u0000/g, '')
     .trim();
-  const refundDeadline = buffer.readBigInt64LE(96);
+  const refundDeadline = buffer.readBigInt64LE(TransactionData.REFUND_DEADLINE);
 
   return {
     sellerAddress: new PublicKey(sellerPubkey).toString(),

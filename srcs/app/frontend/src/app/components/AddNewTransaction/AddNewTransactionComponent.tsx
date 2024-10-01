@@ -33,7 +33,7 @@ const AddNewTransactionComponent: React.FC<input> = ({
     }
     const ssss = new PublicKey(sellerAddress);
     const num_of_transactions = await countTransactions(ssss, wallet.publicKey);
-    const f = await addNewTransaction(
+    await addNewTransaction(
       wallet,
       wallet.signTransaction,
       wallet.publicKey,
