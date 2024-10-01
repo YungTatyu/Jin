@@ -82,7 +82,7 @@ async function fetchTransactions(
 function decodeRefundableEscrow(buffer: Buffer): WithdrawTransaction {
   const buyerPubkey = buffer.slice(
     TransactionData.BUYER_PUBKEY,
-    TransactionData.SELLER_PUBKEY
+    TransactionData.TRANSACTION_ID
   );
   const transactionId = buffer.readBigUInt64LE(TransactionData.TRANSACTION_ID);
   const amountLamports = buffer.readBigUInt64LE(
