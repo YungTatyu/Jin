@@ -1,5 +1,5 @@
 # Jin - 仁
-Jin is a secure and automated refund system.
+Jin is an infrastructure refund service that ensures secure and automated refund processing through smart contracts.
 
 ## How it works
 1. After buyers make a payment, the funds are securely held in escrow by a smart contract.
