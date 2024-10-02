@@ -1,104 +1,53 @@
 .body {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 64px 88px;
-  gap: 32px;
-  position: absolute;
-  width: 100%;
+  padding: 2.5rem 10% 1rem;
   height: 100%;
-  left: calc(50% - 1440px / 2);
-  background: #faf2f0;
 }
 
 .frame30 {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  padding: 0px;
-  gap: 64px;
-  width: 448px;
-  height: 600px;
 }
 
 .frame27 {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 0px;
-  gap: 32px;
-  width: 448px;
-  height: 536px;
+  height: auto;
+  margin-bottom: 2.5rem;
 }
 
 .title {
-  width: 448px;
-  height: 24px;
-  font-family: 'Inter', sans-serif;
-  font-style: normal;
-  font-weight: 700;
-  font-size: 36px;
-  line-height: 24px;
-  color: #000000;
+  font-size: 3.5rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
 }
 
 .inputGroup {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  padding: 0px;
-  gap: 4px;
-  width: 448px;
-  height: 84px;
+  margin-bottom: 1.5rem;
+  font-size: 2.25rem;
 }
 
-.inputGroup label {
-  width: 100%;
-  font-family: 'Inter', sans-serif;
-  font-style: normal;
-  font-weight: 500;
-  font-size: 24px;
-  line-height: 24px;
-  color: #000000;
-}
-
-.sublabel {
-  display: block;
-  font-size: 18px;
-  line-height: 24px;
+.inputGroup label span {
+  display: grid;
+  font-size: 2rem;
 }
 
 .input {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  padding: 16px 20px;
-  width: 448px;
-  height: 56px;
-  background: #f5e3db;
-  border-radius: 8px;
+  background-color: #f5e3db;
+  height: 6.25rem;
+  width: 55rem;
   border: none;
-  font-size: 18px;
+  border-radius: 8px;
+  padding: 0rem 2rem;
+  font-size: 2.5rem;
 }
 
 .okButton {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  padding: 16px;
-  gap: 10px;
-  width: 148px;
-  height: 60px;
-  background: #f24f2b;
-  border-radius: 8px;
+  background-color: #f24f2b;
+  width: 11rem;
+  height: 6rem;
   border: none;
-  font-family: 'Public Sans', sans-serif;
-  font-style: normal;
-  font-weight: 700;
-  font-size: 24px;
-  line-height: 28px;
-  color: #ffffff;
-  cursor: pointer;
+  border-radius: 8px;
+  color: white;
+  font-size: 2.5rem;
+  font-weight: bold;
 }
