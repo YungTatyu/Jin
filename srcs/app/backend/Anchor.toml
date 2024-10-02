@@ -8,7 +8,7 @@ project = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "http://localhost:8899/"
+cluster = "https://api.devnet.solana.com"
 wallet = "/root/.config/solana/id.json"
 
 [scripts]
