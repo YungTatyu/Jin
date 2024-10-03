@@ -1,7 +1,8 @@
 import { PublicKey } from '@solana/web3.js';
 import styles from '../../styles/AddNewTransaction/AddNewTransaction.module.css';
 import { useAnchorWallet } from '@solana/wallet-adapter-react';
-import { addNewTransaction, countTransactions } from '../api';
+//import { addNewTransaction, countTransactions } from '../api';
+import { addNewTransaction, countTransactions } from './api';
 import { BigNumber } from 'bignumber.js';
 
 interface input {

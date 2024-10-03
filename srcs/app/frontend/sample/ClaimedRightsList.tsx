@@ -10,7 +10,8 @@ import styles from '../../../../styles/Body/Seller/ClaimedRightsList.module.css'
 import { useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey, Connection } from '@solana/web3.js';
 import { Buffer } from 'buffer';
-import { TransactionData } from '../TransactionData';
+import { TransactionData } from '../src/app/components/Home/Body/TransactionData';
+//import { TransactionData } from '../TransactionData';
 import { BigNumber } from 'bignumber.js';
 
 const PROGRAM_ID = new PublicKey(

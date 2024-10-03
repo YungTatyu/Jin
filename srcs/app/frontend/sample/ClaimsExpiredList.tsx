@@ -6,12 +6,14 @@ srcs/app/frontend/src/app/components/Body/Seller/ClaimsExpiredList.tsx
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import WithdrawButton from './WithdrawButton';
+//import WithdrawButton from './WithdrawButton';
+import WithdrawButton from '@/app/components/Home/Body/Seller/WithdrawButton';
 import styles from '../../../../styles/Body/Seller/ClaimsExpiredList.module.css';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey, Connection } from '@solana/web3.js';
 import { Buffer } from 'buffer';
-import { TransactionData } from '../TransactionData';
+import { TransactionData } from '../src/app/components/Home/Body/TransactionData';
+//import { TransactionData } from '../TransactionData';
 import { BigNumber } from 'bignumber.js';
 
 const PROGRAM_ID = new PublicKey(
@@ -167,4 +169,3 @@ const ClaimsExpiredList = () => {
 };
 
 export default ClaimsExpiredList;
-
