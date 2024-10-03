@@ -120,7 +120,7 @@ const UnrecoverableList = () => {
                     {transaction.sellerAddress}
                   </div>
                   <div className={styles.transactionAmount}>
-                    { formatAmount(BigInt(transaction.transactionAmount)) } SOL
+                    {formatAmount(BigInt(transaction.transactionAmount))} SOL
                   </div>
                 </div>
                 <div className={styles.sellerInfo2}>

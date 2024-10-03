@@ -139,7 +139,7 @@ const ClaimsExpiredList = () => {
                     {transaction.buyerAddress}
                   </div>
                   <div className={styles.transactionAmount}>
-                    { formatAmount(BigInt(transaction.transactionAmount)) } SOL
+                    {formatAmount(BigInt(transaction.transactionAmount))} SOL
                   </div>
                 </div>
                 <div className={styles.sellerInfo2}>

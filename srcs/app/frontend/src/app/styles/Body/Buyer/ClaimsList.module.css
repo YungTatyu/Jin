@@ -3,7 +3,7 @@
 }
 
 .sectionTitle {
-  color: #AB4A36;
+  color: #ab4a36;
   font-size: 2rem;
   padding-top: 1rem;
   border-bottom: 2px solid #e0e0e0;
@@ -14,7 +14,7 @@
   /* リストの最大高さを設定 */
   max-height: 290px;
   /* 縦方向のスクロールを有効にする  */
-  overflow-y: auto; 
+  overflow-y: auto;
 }
 
 .transactionList {
@@ -58,8 +58,9 @@
   font-size: 2rem;
 }
 
-.transactionAmount, .transactionDate {
-  color: #AB4A36;
+.transactionAmount,
+.transactionDate {
+  color: #ab4a36;
 }
 
 .transactionId {

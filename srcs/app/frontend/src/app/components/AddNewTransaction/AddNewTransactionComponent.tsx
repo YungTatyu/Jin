@@ -11,7 +11,7 @@ interface input {
   transactionInfo: string;
 }
 
-function isAmount(str: string) : boolean {
+function isAmount(str: string): boolean {
   str = str.trim();
   // 空文字列の場合はfalse
   if (str.length === 0) return false;
@@ -22,43 +22,43 @@ function isAmount(str: string) : boolean {
   return !isNaN(num) && isFinite(num);
 }
 
-function isDeadline(str: string) : boolean {
+function isDeadline(str: string): boolean {
   str = str.trim();
   // 空文字列の場合はfalse
   if (str.length === 0 || str.length > 3) return false;
   const regex = /^[0-9]+$/;
-  if (!regex.test(str)) { return false; }
+  if (!regex.test(str)) return false;
   // 負の場合と0の場合にfalse
   const num = Number(str);
   return num >= 1 && num <= 360;
 }
 
-function validateAddNewTransaction(sellerAddress: string, amount: string, refundDeadline: string, transactionInfo: string) : boolean {
-  if (
-    !sellerAddress ||
-    !amount ||
-    !refundDeadline ||
-    !transactionInfo
-  ) {
+function validateAddNewTransaction(
+  sellerAddress: string,
+  amount: string,
+  refundDeadline: string,
+  transactionInfo: string
+): boolean {
+  if (!sellerAddress || !amount || !refundDeadline || !transactionInfo) {
     return false;
   }
   sellerAddress = sellerAddress.trim();
   const alphanumericRegex = /^[a-zA-Z0-9]+$/;
   if (sellerAddress.length != 44 || !alphanumericRegex.test(sellerAddress)) {
-    alert("Error: seller address")
+    alert('Error: seller address');
     return false;
   }
   if (!isAmount(amount)) {
-    alert("Error: amount")
+    alert('Error: amount');
     return false;
   }
   if (!isDeadline(refundDeadline)) {
-    alert("Error: deadline")
+    alert('Error: deadline');
     return false;
   }
   refundDeadline = refundDeadline.trim();
   if (transactionInfo.length > 0 && transactionInfo.length < 51) {
-    alert("Error: transaction info")
+    alert('Error: transaction info');
     return false;
   }
   return true;
@@ -86,7 +86,14 @@ const AddNewTransactionComponent: React.FC<input> = ({
     if (!wallet) {
       return;
     }
-    if (!validateAddNewTransaction(sellerAddress, amount, refundDeadline, transactionInfo)) {
+    if (
+      !validateAddNewTransaction(
+        sellerAddress,
+        amount,
+        refundDeadline,
+        transactionInfo
+      )
+    ) {
       return;
     }
     const ssss = new PublicKey(sellerAddress);

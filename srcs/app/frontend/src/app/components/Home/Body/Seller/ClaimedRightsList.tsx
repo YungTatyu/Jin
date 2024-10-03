@@ -131,13 +131,13 @@ const ClaimedRightsList = () => {
                     {transaction.buyerAddress}
                   </div>
                   <div className={styles.transactionAmount}>
-                    { formatAmount(BigInt(transaction.transactionAmount)) } SOL
+                    {formatAmount(BigInt(transaction.transactionAmount))} SOL
                   </div>
                 </div>
                 <div className={styles.sellerInfo2}>
                   <div className={styles.transactionDate}>
-                    { formatDate(transaction.create_at)} ~{' '}
-                    { formatDate(transaction.deadline) }
+                    {formatDate(transaction.create_at)} ~{' '}
+                    {formatDate(transaction.deadline)}
                   </div>
                   <div className={styles.transactionId}>
                     Transaction ID: {transaction.id}
