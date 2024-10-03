@@ -49,11 +49,17 @@ function solToLamports(sol: string): Result<BigNumber> {
     }
     /* 0.000000001を最小単位とし、それ以下が来るとエラーを返す */
     if (solAmount.isLessThan(MIN_SOL)) {
-      return { value: new BigNumber(0), error: 'Amount is less than 0.000000001 SOL (1 Lamport)' };
+      return {
+        value: new BigNumber(0),
+        error: 'Amount is less than 0.000000001 SOL (1 Lamport)',
+      };
     }
     /* 100000000以上の値が来るとエラーを返す */
     if (solAmount.isGreaterThanOrEqualTo(MAX_SOL)) {
-      return { value: new BigNumber(0), error: 'Amount is 100000000 SOL or more' };
+      return {
+        value: new BigNumber(0),
+        error: 'Amount is 100000000 SOL or more',
+      };
     }
     /* SOL を Lamports に変換します（solAmount に LAMPORTS_PER_SOL を掛ける） */
     const lamports = solAmount.times(LAMPORTS_PER_SOL);
