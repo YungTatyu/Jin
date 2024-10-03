@@ -12,11 +12,9 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey, Connection } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import { TransactionData } from '../TransactionData';
+import { SOLANA_NETWORK, PROGRAM_ID } from '../../../../../constant';
 
-const PROGRAM_ID = new PublicKey(
-  'AbXkyPEuU7F231jG3Hew5zRdddKUejhMaWszdPh1r8uU'
-);
-const CONNECTION = new Connection('https://api.devnet.solana.com');
+const CONNECTION = new Connection(SOLANA_NETWORK);
 
 interface WithdrawTransaction {
   buyerAddress: string;

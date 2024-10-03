@@ -9,15 +9,12 @@ import { Buffer } from 'buffer';
 //import { AnchorProvider, Program, BN } from "@coral-xyz/anchor";
 import { AnchorProvider, Program, BN } from '@project-serum/anchor';
 import { AnchorWallet } from '@solana/wallet-adapter-react';
+import { SOLANA_NETWORK, PROGRAM_ID } from '../../constant';
 
-// anchor deploy 時に出力されるIDで書き換える
-const PROGRAM_ID = new PublicKey(
-  'AbXkyPEuU7F231jG3Hew5zRdddKUejhMaWszdPh1r8uU'
-);
 // ローカルのsolana-test-validatorを指定
-const CONNECTION = new Connection('https://api.devnet.solana.com', 'confirmed');
+const CONNECTION = new Connection(SOLANA_NETWORK, 'confirmed');
 // anchor build 後に作成されるインターフェースファイル
-const IDL = require('./refundable_escrow.json');
+const IDL = require('../../refundable_escrow.json');
 
 // { publicKey, signTransaction, wallet } = useWallet();
 export async function addNewTransaction(

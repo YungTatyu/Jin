@@ -11,11 +11,7 @@ import styles from '../../../../styles/Body/Buyer/ClaimsList.module.css';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection, PublicKey } from '@solana/web3.js';
 import { TransactionData } from '../TransactionData';
-
-const SOLANA_NETWORK = 'https://api.devnet.solana.com';
-const PROGRAM_ID = new PublicKey(
-  'AbXkyPEuU7F231jG3Hew5zRdddKUejhMaWszdPh1r8uU'
-);
+import { SOLANA_NETWORK, PROGRAM_ID} from '../../../../../constant';
 
 const ClaimsList: React.FC = () => {
   // useState の初期化時に型を指定
