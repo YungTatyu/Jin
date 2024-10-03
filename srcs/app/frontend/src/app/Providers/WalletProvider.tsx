@@ -20,7 +20,7 @@ export default function WalletProviderWrapper({
   children: React.ReactNode;
 }) {
   // Localnetのエンドポイントを指定
-  const endpoint = 'http://localhost:8899';
+  const endpoint = 'https://api.devnet.solana.com';
   //const network = WalletAdapterNetwork.Devnet;
   //const endpoint = useMemo(() => clusterApiUrl(network), [network]);
   // コネクションオブジェクトの作成

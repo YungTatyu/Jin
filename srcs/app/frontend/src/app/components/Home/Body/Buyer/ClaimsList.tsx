@@ -12,9 +12,9 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection, PublicKey } from '@solana/web3.js';
 import { TransactionData } from '../TransactionData';
 
-const SOLANA_NETWORK = 'http://localhost:8899';
+const SOLANA_NETWORK = 'https://api.devnet.solana.com';
 const PROGRAM_ID = new PublicKey(
-  'Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS'
+  'AbXkyPEuU7F231jG3Hew5zRdddKUejhMaWszdPh1r8uU'
 );
 
 const ClaimsList: React.FC = () => {

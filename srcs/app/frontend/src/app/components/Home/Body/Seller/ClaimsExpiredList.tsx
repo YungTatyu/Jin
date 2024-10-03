@@ -14,9 +14,9 @@ import { Buffer } from 'buffer';
 import { TransactionData } from '../TransactionData';
 
 const PROGRAM_ID = new PublicKey(
-  'Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS'
+  'AbXkyPEuU7F231jG3Hew5zRdddKUejhMaWszdPh1r8uU'
 );
-const CONNECTION = new Connection('http://localhost:8899/');
+const CONNECTION = new Connection('https://api.devnet.solana.com');
 
 interface WithdrawTransaction {
   buyerAddress: string;
