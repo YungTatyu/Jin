@@ -1,24 +1,21 @@
 .header {
-  background-color: #faf2f0;
+  /* background-color: #faf2f0; */
+  width: 100%;
   display: flex;
   align-items: center;
-  padding: 10px 16px;
-  height: 90px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 0.25rem solid #f24f2b;
+  height: 7rem;
+  padding: 0rem 7rem;
 }
 
 .backButton {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .backIcon {
-  width: 80px;
-  height: 80px;
+  /* width: 7rem; */
+  height: 6rem;
   color: #333333;
 }
