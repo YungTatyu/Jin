@@ -9,6 +9,7 @@ import { Buffer } from 'buffer';
 //import { AnchorProvider, Program, BN } from "@coral-xyz/anchor";
 import { AnchorProvider, Program, BN } from '@project-serum/anchor';
 import { AnchorWallet } from '@solana/wallet-adapter-react';
+import { BigNumber } from 'bignumber.js';
 
 // anchor deploy 時に出力されるIDで書き換える
 const PROGRAM_ID = new PublicKey(
@@ -19,15 +20,14 @@ const CONNECTION = new Connection('http://127.0.0.1:8899', 'confirmed');
 // anchor build 後に作成されるインターフェースファイル
 const IDL = require('/usr/src/project/target/idl/refundable_escrow.json');
 
-// { publicKey, signTransaction, wallet } = useWallet();
 export async function addNewTransaction(
   wallet: AnchorWallet, // useWallet()で取得
   signTransaction: (transaction: Transaction) => Promise<Transaction>, // useWallet()で取得
   buyerPubkey: PublicKey, // useWallet()で取得
   sellerPubkey: PublicKey, // new PublicKey(Userによる入力文字列);
   transactionId: number, // 連番
-  amountLamports: number, // new Number(Userによる入力数値);
-  refundableSeconds: number, // new Number(Userによる入力数値);
+  amountLamports: BigNumber, // new Number(Userによる入力数値);
+  refundableSeconds: BigNumber, // new Number(Userによる入力数値);
   userDefinedData: string // Userによる入力文字列
 ): Promise<boolean> {
   const provider = new AnchorProvider(CONNECTION, wallet, {

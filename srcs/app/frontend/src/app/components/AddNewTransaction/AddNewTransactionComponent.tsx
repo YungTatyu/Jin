@@ -11,68 +11,96 @@ interface input {
   transactionInfo: string;
 }
 
-function isAmount(str: string): boolean {
-  str = str.trim();
-  // 空文字列の場合はfalse
-  if (str.length === 0) return false;
-  // 負の場合と0の場合にfalse
-  if (str[0] === '-' || (str[0] === '0' && str.length === 1)) return false;
-  // 数値に変換してみる
-  const num = Number(str);
-  return !isNaN(num) && isFinite(num);
-}
+type Result<T> = {
+  value: T;
+  error: string;
+};
 
-function isDeadline(str: string): boolean {
-  str = str.trim();
-  // 空文字列の場合はfalse
-  if (str.length === 0 || str.length > 3) return false;
-  const regex = /^[0-9]+$/;
-  if (!regex.test(str)) return false;
-  // 負の場合と0の場合にfalse
-  const num = Number(str);
-  return num >= 1 && num <= 360;
-}
-
-function validateAddNewTransaction(
-  sellerAddress: string,
-  amount: string,
-  refundDeadline: string,
-  transactionInfo: string
-): boolean {
-  if (!sellerAddress || !amount || !refundDeadline || !transactionInfo) {
-    return false;
+/* transactionInfoをvalidateする関数
+boolを返すのでも良かったが、下の関数群と合わせるためにResultを採用 */
+function transactionInfoValidate(transactionInfo: string): Result<string> {
+  transactionInfo = transactionInfo.trim();
+  if (transactionInfo.length === 0 || transactionInfo.length > 50) {
+    return {value: "", error: "\"transaction info\" field is blank"};
   }
-  sellerAddress = sellerAddress.trim();
-  const alphanumericRegex = /^[a-zA-Z0-9]+$/;
-  if (sellerAddress.length != 44 || !alphanumericRegex.test(sellerAddress)) {
-    alert('Error: seller address');
-    return false;
-  }
-  if (!isAmount(amount)) {
-    alert('Error: amount');
-    return false;
-  }
-  if (!isDeadline(refundDeadline)) {
-    alert('Error: deadline');
-    return false;
-  }
-  refundDeadline = refundDeadline.trim();
-  if (transactionInfo.length > 0 && transactionInfo.length < 51) {
-    alert('Error: transaction info');
-    return false;
-  }
-  return true;
+  return {value: transactionInfo, error: ""};
 }
 
 /* 入力はSOLの単位でくるが、スマートコントラクトはLamportsを期待しているため、
 10^9を乗算し、Lamportsに変換 */
-function solToLamports(sol: string | number): string {
-  const LAMPORTS_PER_SOL = new BigNumber('1000000000');
-  const solAmount = new BigNumber(sol);
+function solToLamports(sol: string): Result<BigNumber> {
+  sol = sol.trim();
+  if (sol === "") {
+    return {value: new BigNumber(0), error: "\"Enter amount\" field is blank"};
+  }
+  /* 1 SOL あたりの Lamports 数を定義します（1 SOL = 10^9 Lamports）。*/
+  const LAMPORTS_PER_SOL: BigNumber = new BigNumber('1000000000');
+  try {
+    const solAmount: BigNumber = new BigNumber(sol);
+    /* 数値として無効な場合（NaN）、エラーを返します。 */
+    if (solAmount.isNaN()) {
+      return {value: new BigNumber(0), error: "Invalid number format"};
+    }
+    /* 負の値の場合、エラーを返します。 */
+    if (solAmount.isNegative()) {
+      return {value: new BigNumber(0), error: "Amount cannot be negative"};
+    }
+    /* SOL を Lamports に変換します（solAmount に LAMPORTS_PER_SOL を掛ける） */
+    const lamports = solAmount.times(LAMPORTS_PER_SOL);
+    /* 変換結果が整数でない場合（精度が失われる場合）、エラーを返します。 */
+    if (!lamports.isInteger()) {
+      return {value: new BigNumber(0), error: "Conversion would lose precision"};
+    }
+    return {value: lamports, error: ""};
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : "An unknown error occurred";
+    return {value: new BigNumber(0), error: errorMessage};
+  }
+}
 
-  const lamports = solAmount.times(LAMPORTS_PER_SOL);
+function daysToSeconds(days: string): Result<BigNumber> {
+  days = days.trim();
+  if (days === "") {
+    return {value: new BigNumber(0), error: "\"Enter refund deadline\" field is blank"};
+  }
+  // 入力が有効な数値かどうかチェック
+  if (!/^\d+(\.\d+)?$/.test(days)) {
+    return { value: new BigNumber(0), error: "Please enter a valid number" };
+  }
+  const dayNumber = new BigNumber(days);
+  // 入力が1~360の範囲内かチェック
+  if (dayNumber.isLessThan(1) || dayNumber.isGreaterThan(360)) {
+    return { value: new BigNumber(0), error: "Please enter a number of days between 1 and 360" };
+  }
+  // 小数点以下を切り捨て
+  const roundedDays = dayNumber.integerValue(BigNumber.ROUND_DOWN);
+  // 日数を秒数に変換 BigNumber の乗算メソッドを使用して、より正確な計算を行うようにしました。
+  const seconds: BigNumber = roundedDays.multipliedBy(24 * 60 * 60);
+  return {value: seconds, error: ""};
+}
 
-  return lamports.toFixed(0);
+function sellerAddressToPublickey(address: string): Result<PublicKey> {
+  const keyoriginal = address.trim();
+  if (keyoriginal === "") {
+    return {value: new PublicKey(""), error: "\"Enter seller address\" field is blank"};
+  }
+  // 厳密なBase58文字のみを許可する正規表現
+  const base58Regex = /^[1-9A-HJ-NP-Za-km-z]+$/;
+  if (keyoriginal.length != 44 || !base58Regex.test(keyoriginal)) {
+    return {value: new PublicKey(""), error: "Seller address is not in the correct format"};
+  }
+  try {
+    // PublicKeyクラスのコンストラクタを使用して有効性をチェック
+    const pubkey = new PublicKey(keyoriginal);
+    // PublicKeyが正しく生成されたことを確認
+    // 注意: isOnCurve は静的メソッドなので、インスタンスではなくクラスに対して呼び出します
+    if (!PublicKey.isOnCurve(pubkey.toBuffer())) {
+      return { value: new PublicKey(""), error: "Invalid public key: not on ed25519 curve" };
+    }
+    return { value: pubkey, error: "" };
+  } catch (error) {
+    return { value: new PublicKey(""), error: `Invalid public key: ${error}` };
+  }
 }
 
 const AddNewTransactionComponent: React.FC<input> = ({
@@ -86,28 +114,37 @@ const AddNewTransactionComponent: React.FC<input> = ({
     if (!wallet) {
       return;
     }
-    if (
-      !validateAddNewTransaction(
-        sellerAddress,
-        amount,
-        refundDeadline,
-        transactionInfo
-      )
-    ) {
+    // ここで各入力値をvalidateし、必要な値に変換しています
+    const address = sellerAddressToPublickey(sellerAddress);
+    if (address.error !== "") {
+      alert(`Error: ${address.error}`)
       return;
     }
-    const ssss = new PublicKey(sellerAddress);
-    const num_of_transactions = await countTransactions(ssss, wallet.publicKey);
+    const lamports = solToLamports(amount);
+    if (lamports.error !== "") {
+      alert(`Error: ${lamports.error}`)
+      return;
+    }
+    const seconds = daysToSeconds(refundDeadline);
+    if (seconds.error !== "") {
+      alert(`Error: ${seconds.error}`)
+      return;
+    }
+    const trInfo = transactionInfoValidate(transactionInfo);
+    if (trInfo.error !== "") {
+      alert(`Error: ${trInfo.error}`)
+      return;
+    }
+    const num_of_transactions = await countTransactions(address.value, wallet.publicKey);
     await addNewTransaction(
       wallet,
       wallet.signTransaction,
       wallet.publicKey,
-      ssss,
+      address.value,
       num_of_transactions + 1,
-      //Number(amount) * 10 ** 9,
-      Number(solToLamports(amount)),
-      Number(refundDeadline) * 24 * 60 * 60,
-      transactionInfo
+      lamports.value,
+      seconds.value,
+      trInfo.value,
     );
   };
 
