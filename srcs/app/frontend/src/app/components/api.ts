@@ -9,15 +9,12 @@ import { Buffer } from 'buffer';
 //import { AnchorProvider, Program, BN } from "@coral-xyz/anchor";
 import { AnchorProvider, Program, BN } from '@project-serum/anchor';
 import { AnchorWallet } from '@solana/wallet-adapter-react';
+import { SOLANA_NETWORK, PROGRAM_ID } from '../../constant';
 
-// anchor deploy 時に出力されるIDで書き換える
-const PROGRAM_ID = new PublicKey(
-  'Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS'
-);
 // ローカルのsolana-test-validatorを指定
-const CONNECTION = new Connection('http://127.0.0.1:8899', 'confirmed');
+const CONNECTION = new Connection(SOLANA_NETWORK, 'confirmed');
 // anchor build 後に作成されるインターフェースファイル
-const IDL = require('/usr/src/project/target/idl/refundable_escrow.json');
+const IDL = require('../../refundable_escrow.json');
 
 // { publicKey, signTransaction, wallet } = useWallet();
 export async function addNewTransaction(
@@ -56,7 +53,7 @@ export async function addNewTransaction(
         systemProgram: SystemProgram.programId,
       })
       .transaction();
-    const { blockhash } = await CONNECTION.getRecentBlockhash();
+    const { blockhash } = await CONNECTION.getLatestBlockhash();
     tx.recentBlockhash = blockhash;
     tx.feePayer = wallet.publicKey; // 手数料の支払者を設定
     // recentBlockhashを取得し設定
@@ -104,7 +101,7 @@ export async function settleTransaction(
       })
       .transaction();
 
-    const { blockhash } = await CONNECTION.getRecentBlockhash();
+    const { blockhash } = await CONNECTION.getLatestBlockhash();
     tx.recentBlockhash = blockhash;
     tx.feePayer = wallet.publicKey; // 手数料の支払者を設定
 

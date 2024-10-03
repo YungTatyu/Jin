@@ -13,6 +13,7 @@ import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import '@solana/wallet-adapter-react-ui/styles.css';
 import '../styles/Providers/Wallet-adapter-override.css'; // 新しく追加
 import { Connection } from '@solana/web3.js';
+import { SOLANA_NETWORK } from '../../constant';
 
 export default function WalletProviderWrapper({
   children,
@@ -20,7 +21,7 @@ export default function WalletProviderWrapper({
   children: React.ReactNode;
 }) {
   // Localnetのエンドポイントを指定
-  const endpoint = 'http://localhost:8899';
+  const endpoint = SOLANA_NETWORK;
   //const network = WalletAdapterNetwork.Devnet;
   //const endpoint = useMemo(() => clusterApiUrl(network), [network]);
   // コネクションオブジェクトの作成

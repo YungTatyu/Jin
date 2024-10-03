@@ -11,11 +11,9 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey, Connection } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import { TransactionData } from '../TransactionData';
+import { SOLANA_NETWORK, PROGRAM_ID } from '../../../../../constant';
 
-const PROGRAM_ID = new PublicKey(
-  'Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS'
-);
-const CONNECTION = new Connection('http://localhost:8899/');
+const CONNECTION = new Connection(SOLANA_NETWORK);
 
 const getCurrentDate = (d: Date): string => {
   const year = d.getFullYear();

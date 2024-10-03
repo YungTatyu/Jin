@@ -65,7 +65,7 @@ COPY ./build_tool/replace ./replace
 COPY ./build_tool/grep.py ./grep.py
 
 # Set the deployment destination to the local test net
-RUN solana config set --url http://localhost:8899
+RUN solana config set --url https://api.devnet.solana.com
 
 # Generate test accounts
 RUN solana-keygen new --no-bip39-passphrase
