@@ -11,6 +11,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey, Connection } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import { TransactionData } from '../TransactionData';
+import { BigNumber } from 'bignumber.js';
 
 const PROGRAM_ID = new PublicKey(
   'Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS'
@@ -20,7 +21,7 @@ const CONNECTION = new Connection('http://localhost:8899/');
 interface PossibleRepaymentTransaction {
   buyerAddress: string;
   id: string;
-  transactionAmount: number;
+  transactionAmount: BigNumber;
   create_at: bigint;
   deadline: bigint;
   reason: string;
@@ -83,7 +84,7 @@ function decodeRefundableEscrow(buffer: Buffer): PossibleRepaymentTransaction {
   return {
     buyerAddress: new PublicKey(buyerPubkey).toString(),
     id: transactionId.toString(),
-    transactionAmount: Number(amountLamports),
+    transactionAmount: new BigNumber(amountLamports.toString()),
     create_at: createAt,
     deadline: refundDeadline,
     reason: userDefinedData,
@@ -114,8 +115,9 @@ const ClaimedRightsList = () => {
     return new Date(Number(timestamp) * 1000).toLocaleString();
   };
 
-  const formatAmount = (lamports: bigint): string => {
-    return (Number(lamports) / 1e9).toFixed(9);
+  // lamports形式をsolの形式に変更
+  const formatAmount = (amount: BigNumber): string => {
+    return amount.dividedBy(1e9).toFixed(9);
   };
 
   return (
@@ -131,7 +133,7 @@ const ClaimedRightsList = () => {
                     {transaction.buyerAddress}
                   </div>
                   <div className={styles.transactionAmount}>
-                    {formatAmount(BigInt(transaction.transactionAmount))} SOL
+                    {formatAmount(transaction.transactionAmount)} SOL
                   </div>
                 </div>
                 <div className={styles.sellerInfo2}>
