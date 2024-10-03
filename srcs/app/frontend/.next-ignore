@@ -1,0 +1,7 @@
+./sample/AddNewTransactionComponent.tsx
+./sample/api.ts
+./sample/ClaimedRightsList.tsx
+./sample/ClaimsExpiredList.tsx
+./sample/ClaimsList.tsx
+./sample/UnrecoverableList.tsx
+
