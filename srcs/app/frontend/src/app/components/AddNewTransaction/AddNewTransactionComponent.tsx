@@ -2,6 +2,7 @@ import { PublicKey } from '@solana/web3.js';
 import styles from '../../styles/AddNewTransaction/AddNewTransaction.module.css';
 import { useAnchorWallet } from '@solana/wallet-adapter-react';
 import { addNewTransaction, countTransactions } from '../api';
+import { BigNumber } from 'bignumber.js';
 
 interface input {
   sellerAddress: string;
@@ -15,7 +16,7 @@ function isAmount(str: string) : boolean {
   // 空文字列の場合はfalse
   if (str.length === 0) return false;
   // 負の場合と0の場合にfalse
-  if (str[0] == '-' || str[0] == '0') return false;
+  if (str[0] === '-' || (str[0] === '0' && str.length === 1)) return false;
   // 数値に変換してみる
   const num = Number(str);
   return !isNaN(num) && isFinite(num);
@@ -33,6 +34,14 @@ function isDeadline(str: string) : boolean {
 }
 
 function validateAddNewTransaction(sellerAddress: string, amount: string, refundDeadline: string, transactionInfo: string) : boolean {
+  if (
+    !sellerAddress ||
+    !amount ||
+    !refundDeadline ||
+    !transactionInfo
+  ) {
+    return false;
+  }
   sellerAddress = sellerAddress.trim();
   const alphanumericRegex = /^[a-zA-Z0-9]+$/;
   if (sellerAddress.length != 44 || !alphanumericRegex.test(sellerAddress)) {
@@ -55,6 +64,17 @@ function validateAddNewTransaction(sellerAddress: string, amount: string, refund
   return true;
 }
 
+/* 入力はSOLの単位でくるが、スマートコントラクトはLamportsを期待しているため、
+10^9を乗算し、Lamportsに変換 */
+function solToLamports(sol: string | number): string {
+  const LAMPORTS_PER_SOL = new BigNumber('1000000000');
+  const solAmount = new BigNumber(sol);
+
+  const lamports = solAmount.times(LAMPORTS_PER_SOL);
+
+  return lamports.toFixed(0);
+}
+
 const AddNewTransactionComponent: React.FC<input> = ({
   sellerAddress,
   amount,
@@ -62,19 +82,11 @@ const AddNewTransactionComponent: React.FC<input> = ({
   transactionInfo,
 }) => {
   const wallet = useAnchorWallet();
-  if (!validateAddNewTransaction(sellerAddress, amount, refundDeadline, transactionInfo)) {
-    return
-  }
-
   const handleAddNewTransaction = async () => {
-
-    if (
-      !sellerAddress ||
-      !amount ||
-      !refundDeadline ||
-      !transactionInfo ||
-      !wallet
-    ) {
+    if (!wallet) {
+      return;
+    }
+    if (!validateAddNewTransaction(sellerAddress, amount, refundDeadline, transactionInfo)) {
       return;
     }
     const ssss = new PublicKey(sellerAddress);
@@ -85,7 +97,8 @@ const AddNewTransactionComponent: React.FC<input> = ({
       wallet.publicKey,
       ssss,
       num_of_transactions + 1,
-      Number(amount),
+      //Number(amount) * 10 ** 9,
+      Number(solToLamports(amount)),
       Number(refundDeadline) * 24 * 60 * 60,
       transactionInfo
     );
