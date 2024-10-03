@@ -93,7 +93,6 @@ function decodeRefundableEscrow(buffer: Buffer): WithdrawTransaction {
     .toString('utf-8')
     .replace(/\u0000/g, '')
     .trim();
-  const refundDeadline = buffer.readBigInt64LE(TransactionData.REFUND_DEADLINE);
 
   return {
     buyerAddress: new PublicKey(buyerPubkey).toString(),
