@@ -18,7 +18,7 @@ type Result<T> = {
 
 /* transactionInfoをvalidateする関数
 boolを返すのでも良かったが、下の関数群と合わせるためにResultを採用 */
-function transactionInfoValidate(transactionInfo: string): Result<string> {
+function validateTransactionInfo(transactionInfo: string): Result<string> {
   transactionInfo = transactionInfo.trim();
   if (transactionInfo.length === 0 || transactionInfo.length > 50) {
     return { value: '', error: '"transaction info" field is blank' };
@@ -35,6 +35,8 @@ function solToLamports(sol: string): Result<BigNumber> {
   }
   /* 1 SOL あたりの Lamports 数を定義します（1 SOL = 10^9 Lamports）。*/
   const LAMPORTS_PER_SOL: BigNumber = new BigNumber('1000000000');
+  const MIN_SOL: BigNumber = new BigNumber('0.000000001');
+  const MAX_SOL: BigNumber = new BigNumber('100000000');
   try {
     const solAmount: BigNumber = new BigNumber(sol);
     /* 数値として無効な場合（NaN）、エラーを返します。 */
@@ -44,6 +46,14 @@ function solToLamports(sol: string): Result<BigNumber> {
     /* 負の値の場合、エラーを返します。 */
     if (solAmount.isNegative()) {
       return { value: new BigNumber(0), error: 'Amount cannot be negative' };
+    }
+    /* 0.000000001を最小単位とし、それ以下が来るとエラーを返す */
+    if (solAmount.isLessThan(MIN_SOL)) {
+      return { value: new BigNumber(0), error: 'Amount is less than 0.000000001 SOL (1 Lamport)' };
+    }
+    /* 100000000以上の値が来るとエラーを返す */
+    if (solAmount.isGreaterThanOrEqualTo(MAX_SOL)) {
+      return { value: new BigNumber(0), error: 'Amount is 100000000 SOL or more' };
     }
     /* SOL を Lamports に変換します（solAmount に LAMPORTS_PER_SOL を掛ける） */
     const lamports = solAmount.times(LAMPORTS_PER_SOL);
@@ -149,7 +159,7 @@ const AddNewTransactionComponent: React.FC<input> = ({
       alert(`Error: ${seconds.error}`);
       return;
     }
-    const trInfo = transactionInfoValidate(transactionInfo);
+    const trInfo = validateTransactionInfo(transactionInfo);
     if (trInfo.error !== '') {
       alert(`Error: ${trInfo.error}`);
       return;
