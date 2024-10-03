@@ -12,17 +12,15 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey, Connection } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import { TransactionData } from '../TransactionData';
-import { BigNumber } from 'bignumber.js';
+import { SOLANA_NETWORK, PROGRAM_ID } from '../../../../../constant';
 
-const PROGRAM_ID = new PublicKey(
-  'Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS'
-);
-const CONNECTION = new Connection('http://localhost:8899/');
+const CONNECTION = new Connection(SOLANA_NETWORK);
 
 interface WithdrawTransaction {
   buyerAddress: string;
   id: string;
-  transactionAmount: BigNumber;
+  transactionAmount: number;
+  deadline: bigint;
   reason: string;
 }
 
@@ -93,11 +91,13 @@ function decodeRefundableEscrow(buffer: Buffer): WithdrawTransaction {
     .toString('utf-8')
     .replace(/\u0000/g, '')
     .trim();
+  const refundDeadline = buffer.readBigInt64LE(TransactionData.REFUND_DEADLINE);
 
   return {
     buyerAddress: new PublicKey(buyerPubkey).toString(),
     id: transactionId.toString(),
-    transactionAmount: new BigNumber(amountLamports.toString()),
+    transactionAmount: Number(amountLamports),
+    deadline: refundDeadline,
     reason: userDefinedData,
   };
 }
@@ -120,11 +120,6 @@ const ClaimsExpiredList = () => {
     fetchData();
   }, [publicKey]);
 
-  // lamports形式をsolの形式に変更
-  const formatAmount = (amount: BigNumber): string => {
-    return amount.dividedBy(1e9).toFixed(9);
-  };
-
   return (
     <div className={styles.ClaimsExpiredListContainer}>
       <h2 className={styles.sectionTitle}>Refund expired</h2>
@@ -138,7 +133,7 @@ const ClaimsExpiredList = () => {
                     {transaction.buyerAddress}
                   </div>
                   <div className={styles.transactionAmount}>
-                    {formatAmount(transaction.transactionAmount)} SOL
+                    {transaction.transactionAmount} SOL
                   </div>
                 </div>
                 <div className={styles.sellerInfo2}>

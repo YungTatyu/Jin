@@ -11,12 +11,7 @@ import styles from '../../../../styles/Body/Buyer/ClaimsList.module.css';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection, PublicKey } from '@solana/web3.js';
 import { TransactionData } from '../TransactionData';
-import { BigNumber } from 'bignumber.js';
-
-const SOLANA_NETWORK = 'http://localhost:8899';
-const PROGRAM_ID = new PublicKey(
-  'Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS'
-);
+import { SOLANA_NETWORK, PROGRAM_ID } from '../../../../../constant';
 
 const ClaimsList: React.FC = () => {
   // useState の初期化時に型を指定
@@ -47,14 +42,12 @@ const ClaimsList: React.FC = () => {
       fetchData();
     }
   }, [publicKey]);
-
   const formatDate = (timestamp: bigint): string => {
     return new Date(Number(timestamp) * 1000).toLocaleString();
   };
 
-  // lamports形式をsolの形式に変更
-  const formatAmount = (amount: BigNumber): string => {
-    return amount.dividedBy(1e9).toFixed(9);
+  const formatAmount = (lamports: bigint): string => {
+    return (Number(lamports) / 1e9).toFixed(9);
   };
 
   return (
@@ -110,7 +103,7 @@ type RefundableEscrowData = {
   buyer_pubkey: PublicKey;
   seller_pubkey: PublicKey;
   transaction_id: bigint;
-  amount_lamports: BigNumber;
+  amount_lamports: bigint;
   create_at: bigint;
   refund_deadline: bigint;
   is_canceled: boolean;
@@ -183,7 +176,7 @@ function decodeRefundableEscrow(buffer: Buffer): RefundableEscrowData {
     seller_pubkey: new PublicKey(sellerPubkey),
     buyer_pubkey: new PublicKey(buyerPubkey),
     transaction_id: transactionId,
-    amount_lamports: new BigNumber(amountLamports.toString()),
+    amount_lamports: amountLamports,
     create_at: createAt,
     refund_deadline: refundDeadline,
     is_canceled: isCanceled,
