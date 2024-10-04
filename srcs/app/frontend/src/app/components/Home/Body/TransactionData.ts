@@ -10,6 +10,7 @@ pub struct RefundableEscrow {
     pub create_at: i64,            // 8 (unix_timestamp)
     pub refund_deadline: i64,      // 8 (unix_timestamp)
     pub is_canceled: bool,         // 1
+    pub is_withdrawn: bool,        // 1
     pub user_defined_data: String, // 4 + 100(variable_size)
 }
 */
@@ -23,5 +24,6 @@ export enum TransactionData {
   CREATE_AT = 88,
   REFUND_DEADLINE = 96,
   IS_CANCELED = 104,
-  USER_DEFINED_DATA = 109,
+  IS_WITHDRAWN = 105,
+  USER_DEFINED_DATA = 110,
 }

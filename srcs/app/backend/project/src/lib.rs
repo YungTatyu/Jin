@@ -30,6 +30,12 @@ pub mod refundable_escrow {
         escrow.buyer_pubkey = ctx.accounts.buyer.key();
         escrow.transaction_id = transaction_id;
         escrow.is_canceled = false;
+        escrow.is_withdrawn = false;
+
+        // check (Seller != Buyer)
+        if ctx.accounts.seller.key() == ctx.accounts.buyer.key() {
+            return Err(ErrorCode::SamePublicKeyError.into());
+        }
 
         // amount validate
         if amount_lamports <= 0 {
@@ -86,7 +92,9 @@ pub mod refundable_escrow {
             key if key == seller_pubkey => match now {
                 // Seller and outside the refund period
                 now if (refund_deadline < now) => {
-                    transfer_lamports_from_pda(&from, &to, amount_lamports)
+                    transfer_lamports_from_pda(&from, &to, amount_lamports)?;
+                    ctx.accounts.escrow.is_withdrawn = true;
+                    Ok(())
                 }
                 // Withdrawals not possible due to refund period
                 _ => Err(ErrorCode::FundraisingError.into()),

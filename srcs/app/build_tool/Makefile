@@ -27,11 +27,11 @@ start-prod:
 	cd project/app && \
 	$(NEXT_START)
 
-test-backend: deploy build
-	solana-keygen new --no-bip39-passphrase -o /root/.config/solana/id2.json && \
-	solana airdrop 1 /root/.config/solana/id2.json && \
-	node /usr/src/project/app/sample/test.js
-
-test-anchor: deploy
+test-anchor:
+	export ANCHOR_PROVIDER_URL="http://127.0.0.1:8899" && \
+	solana config set --url http://127.0.0.1:8899 && \
+	solana airdrop 5 && \
+	sed -i 's|https://api.devnet.solana.com|http://127.0.0.1:8899|g' /usr/src/project/Anchor.toml && \
+	${MAKE} deploy && \
 	cd /usr/src/project/ && \
 	anchor test

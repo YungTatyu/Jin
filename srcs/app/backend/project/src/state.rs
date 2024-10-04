@@ -11,9 +11,10 @@ pub struct RefundableEscrow {
     pub create_at: i64,            // 8 (unix_timestamp)
     pub refund_deadline: i64,      // 8 (unix_timestamp)
     pub is_canceled: bool,         // 1
+    pub is_withdrawn: bool,        // 1
     pub user_defined_data: String, // 4 + variable_size
 }
 
 impl RefundableEscrow {
-    pub const LEN: usize = 32 + 32 + 8 + 8 + 8 + 8 + 1 + 4 + USER_DEFINED_DATA_SIZE;
+    pub const LEN: usize = 32 + 32 + 8 + 8 + 8 + 8 + 1 + 1 + 4 + USER_DEFINED_DATA_SIZE;
 }
