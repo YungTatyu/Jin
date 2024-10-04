@@ -24,12 +24,14 @@ interface WithdrawTransaction {
   reason: string;
 }
 
-function is_expired_refund(buffer: Buffer): boolean {
+function can_withdraw(buffer: Buffer): boolean {
+  const isCanceled = buffer.readUInt8(TransactionData.IS_CANCELED) !== 0;
+  const isWithdrawn = buffer.readUInt8(TransactionData.IS_WITHDRAWN) !== 0;
   const refundDeadline = Number(
     buffer.readBigInt64LE(TransactionData.REFUND_DEADLINE)
   );
   const now = Math.floor(Date.now() / 1000);
-  return refundDeadline < now;
+  return !isCanceled && !isWithdrawn && refundDeadline < now;
 }
 
 // 買い手の公開鍵が引数と一致し、返金処理可能な取引を取得
@@ -53,23 +55,8 @@ async function fetchTransactions(
   for (let i = 0; i < accounts.length; i++) {
     const accountData = accounts[i].account.data;
 
-    // Buffer型かをチェック
-    if (!Buffer.isBuffer(accountData)) {
-      continue;
-    }
-
-    // PDAに残高が存在するかをチェック
-    // (取引した金額 <= PDAの残高)
-    const lamports = accounts[i].account.lamports; // 残高
-    const amountLamports = accountData.readBigUInt64LE(
-      TransactionData.AMOUNT_LAMPORTS
-    ); // 取引額
-    if (lamports < amountLamports) {
-      continue;
-    }
-
-    // 返金期間外 && キャンセルされていない
-    if (is_expired_refund(accountData)) {
+    // キャンセルされていない && 出金処理されていない && 返金期間外
+    if (Buffer.isBuffer(accountData) && can_withdraw(accountData)) {
       const data = decodeRefundableEscrow(accountData);
       returnableTransactionArray.push(data);
     }
