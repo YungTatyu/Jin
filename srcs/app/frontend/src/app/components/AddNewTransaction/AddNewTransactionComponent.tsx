@@ -16,12 +16,25 @@ type Result<T> = {
   error: string;
 };
 
+const MAX_TRANSACTION_INFO = 100;
+
 /* transactionInfoをvalidateする関数
 boolを返すのでも良かったが、下の関数群と合わせるためにResultを採用 */
 function validateTransactionInfo(transactionInfo: string): Result<string> {
   transactionInfo = transactionInfo.trim();
-  if (transactionInfo.length === 0 || transactionInfo.length > 50) {
-    return { value: '', error: '"transaction info" field is blank' };
+
+  if (!/^[a-zA-Z0-9]+$/.test(transactionInfo)) {
+    return {
+      value: '',
+      error: '"transaction info" field must contain only alphanumeric characters'
+    };
+  }
+  // TextEncoderを使ってバイト数を計算
+  if (transactionInfo.length === 0 || transactionInfo.length > MAX_TRANSACTION_INFO) {
+    return {
+      value: '',
+      error: 'Transaction info should be no longer than 100 characters'
+    };
   }
   return { value: transactionInfo, error: '' };
 }
@@ -98,14 +111,12 @@ function daysToSeconds(days: string): Result<BigNumber> {
       error: 'Please enter a number of days between 1 and 360',
     };
   }
-  // 小数点以下を切り捨て
-  const roundedDays = dayNumber.integerValue(BigNumber.ROUND_DOWN);
   // 日数を秒数に変換 BigNumber の乗算メソッドを使用して、より正確な計算を行うようにしました。
-  const seconds: BigNumber = roundedDays.multipliedBy(24 * 60 * 60);
+  const seconds: BigNumber = dayNumber.multipliedBy(24 * 60 * 60);
   return { value: seconds, error: '' };
 }
 
-function sellerAddressToPublickey(address: string): Result<PublicKey> {
+function sellerAddressToPublickey(address: string, ownPubKey: PublicKey): Result<PublicKey> {
   const INVALID_PUBLIC_KEY = new PublicKey('11111111111111111111111111111111');
   const keyoriginal = address.trim();
   if (keyoriginal === '') {
@@ -133,6 +144,13 @@ function sellerAddressToPublickey(address: string): Result<PublicKey> {
         error: 'Invalid public key: not on ed25519 curve',
       };
     }
+    // 入力されたpubkeyと自分のpubkeyが同じだとエラーを返す
+    if (pubkey.equals(ownPubKey)) {
+      return {
+        value: new PublicKey(INVALID_PUBLIC_KEY),
+        error: 'The seller\'s public key is the same as your own public key',
+      };
+    }
     return { value: pubkey, error: '' };
   } catch (error) {
     return {
@@ -154,7 +172,7 @@ const AddNewTransactionComponent: React.FC<input> = ({
       return;
     }
     // ここで各入力値をvalidateし、必要な値に変換しています
-    const address = sellerAddressToPublickey(sellerAddress);
+    const address = sellerAddressToPublickey(sellerAddress, wallet.publicKey);
     if (address.error !== '') {
       alert(`Error: ${address.error}`);
       return;
@@ -174,7 +192,7 @@ const AddNewTransactionComponent: React.FC<input> = ({
       alert(`Error: ${trInfo.error}`);
       return;
     }
-    const num_of_transactions = await countTransactions(
+    const numTransactions = await countTransactions(
       address.value,
       wallet.publicKey
     );
@@ -183,7 +201,7 @@ const AddNewTransactionComponent: React.FC<input> = ({
       wallet.signTransaction,
       wallet.publicKey,
       address.value,
-      num_of_transactions + 1,
+      numTransactions + 1,
       lamports.value,
       seconds.value,
       trInfo.value
