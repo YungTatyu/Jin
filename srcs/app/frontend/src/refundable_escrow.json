@@ -97,6 +97,10 @@
             "type": "bool"
           },
           {
+            "name": "isWithdrawn",
+            "type": "bool"
+          },
+          {
             "name": "userDefinedData",
             "type": "string"
           }
@@ -144,9 +148,14 @@
       "code": 6007,
       "name": "AmountTooSmall",
       "msg": "Transaction amount is too small."
+    },
+    {
+      "code": 6008,
+      "name": "SamePublicKeyError",
+      "msg": "SOL cannot be transferred to the same account."
     }
   ],
   "metadata": {
-    "address": "AbXkyPEuU7F231jG3Hew5zRdddKUejhMaWszdPh1r8uU"
+    "address": "76HmiSofRjkEdLLmdiAx7LcZQyx5cgn6DaSQLzhMKAor"
   }
 }
