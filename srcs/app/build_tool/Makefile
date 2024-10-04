@@ -27,9 +27,10 @@ start-prod:
 	cd project/app && \
 	$(NEXT_START)
 
-test-anchor: deploy
-	cd /usr/src/project/ && \
+test-anchor:
 	export ANCHOR_PROVIDER_URL="http://127.0.0.1:8899" && \
 	solana config set --url http://127.0.0.1:8899 && \
 	solana airdrop 5 && \
+	${MAKE} deploy && \
+	cd /usr/src/project/ && \
 	anchor test
