@@ -12,14 +12,14 @@ import { PublicKey, Connection } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import { TransactionData } from '../TransactionData';
 import { SOLANA_NETWORK, PROGRAM_ID } from '../../../../../constant';
+import { BigNumber } from 'bignumber.js';
 
 const CONNECTION = new Connection(SOLANA_NETWORK);
 
 interface NotRetTransaction {
   sellerAddress: string;
   id: string;
-  transactionAmount: number;
-  deadline: bigint;
+  transactionAmount: BigNumber;
   reason: string;
 }
 
@@ -72,13 +72,11 @@ function decodeRefundableEscrow(buffer: Buffer): NotRetTransaction {
     .toString('utf-8')
     .replace(/\u0000/g, '')
     .trim();
-  const refundDeadline = buffer.readBigInt64LE(TransactionData.REFUND_DEADLINE);
 
   return {
     sellerAddress: new PublicKey(sellerPubkey).toString(),
     id: transactionId.toString(),
-    transactionAmount: Number(amountLamports),
-    deadline: refundDeadline,
+    transactionAmount: new BigNumber(amountLamports.toString()),
     reason: userDefinedData,
   };
 }
@@ -101,6 +99,11 @@ const UnrecoverableList = () => {
     fetchData();
   }, [publicKey]);
 
+  // lamports形式をsolの形式に変更
+  const formatAmount = (amount: BigNumber): string => {
+    return amount.dividedBy(1e9).toFixed(9);
+  };
+
   return (
     <div className={styles.unrecoverableListContainer}>
       <h2 className={styles.sectionTitle}>Refund expired</h2>
@@ -114,7 +117,7 @@ const UnrecoverableList = () => {
                     {transaction.sellerAddress}
                   </div>
                   <div className={styles.transactionAmount}>
-                    {transaction.transactionAmount} SOL
+                    {formatAmount(transaction.transactionAmount)} SOL
                   </div>
                 </div>
                 <div className={styles.sellerInfo2}>
