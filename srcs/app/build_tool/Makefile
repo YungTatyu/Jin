@@ -31,6 +31,7 @@ test-anchor:
 	export ANCHOR_PROVIDER_URL="http://127.0.0.1:8899" && \
 	solana config set --url http://127.0.0.1:8899 && \
 	solana airdrop 5 && \
+	sed -i 's|https://api.devnet.solana.com|http://127.0.0.1:8899|g' /usr/src/project/Anchor.toml && \
 	${MAKE} deploy && \
 	cd /usr/src/project/ && \
 	anchor test
