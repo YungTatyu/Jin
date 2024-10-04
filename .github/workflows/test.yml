@@ -1,4 +1,4 @@
-name: Build Test
+name: Test
 
 on:
   pull_request:
@@ -11,11 +11,11 @@ on:
 jobs:
   build-ubuntu:
     if: github.event.pull_request.draft == false
-    name: Build on Ubuntu
+    name: Build and Test on Ubuntu
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Run make (Ubuntu)
+    - name: Run make test-anchor (Ubuntu)
       run: make test-anchor
