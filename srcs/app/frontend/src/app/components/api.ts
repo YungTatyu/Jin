@@ -10,21 +10,21 @@ import { Buffer } from 'buffer';
 import { AnchorProvider, Program, BN } from '@project-serum/anchor';
 import { AnchorWallet } from '@solana/wallet-adapter-react';
 import { SOLANA_NETWORK, PROGRAM_ID } from '../../constant';
+import { BigNumber } from 'bignumber.js';
 
 // ローカルのsolana-test-validatorを指定
 const CONNECTION = new Connection(SOLANA_NETWORK, 'confirmed');
 // anchor build 後に作成されるインターフェースファイル
 const IDL = require('../../refundable_escrow.json');
 
-// { publicKey, signTransaction, wallet } = useWallet();
 export async function addNewTransaction(
   wallet: AnchorWallet, // useWallet()で取得
   signTransaction: (transaction: Transaction) => Promise<Transaction>, // useWallet()で取得
   buyerPubkey: PublicKey, // useWallet()で取得
   sellerPubkey: PublicKey, // new PublicKey(Userによる入力文字列);
   transactionId: number, // 連番
-  amountLamports: number, // new Number(Userによる入力数値);
-  refundableSeconds: number, // new Number(Userによる入力数値);
+  amountLamports: BigNumber, // new Number(Userによる入力数値);
+  refundableSeconds: BigNumber, // new Number(Userによる入力数値);
   userDefinedData: string // Userによる入力文字列
 ): Promise<boolean> {
   const provider = new AnchorProvider(CONNECTION, wallet, {
@@ -37,13 +37,12 @@ export async function addNewTransaction(
     transactionId,
     PROGRAM_ID
   );
-
   try {
     const tx = await program.methods
       .createRefundableEscrow(
-        new BN(transactionId),
-        new BN(amountLamports),
-        new BN(refundableSeconds),
+        new BN(transactionId.toString()),
+        new BN(amountLamports.toString()),
+        new BN(refundableSeconds.toString()),
         userDefinedData
       )
       .accounts({

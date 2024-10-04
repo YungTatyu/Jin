@@ -12,23 +12,15 @@ import { PublicKey, Connection } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import { TransactionData } from '../TransactionData';
 import { SOLANA_NETWORK, PROGRAM_ID } from '../../../../../constant';
+import { BigNumber } from 'bignumber.js';
 
 const CONNECTION = new Connection(SOLANA_NETWORK);
-
-const getCurrentDate = (d: Date): string => {
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0'); // 月は0から始まるので1を足す
-  const day = String(d.getDate()).padStart(2, '0');
-  const hours = String(d.getHours()).padStart(2, '0');
-  const minutes = String(d.getMinutes()).padStart(2, '0');
-
-  return `${year}-${month}-${day} ${hours}:${minutes}`;
-};
 
 interface PossibleRepaymentTransaction {
   buyerAddress: string;
   id: string;
-  transactionAmount: number;
+  transactionAmount: BigNumber;
+  create_at: bigint;
   deadline: bigint;
   reason: string;
 }
@@ -85,11 +77,13 @@ function decodeRefundableEscrow(buffer: Buffer): PossibleRepaymentTransaction {
     .replace(/\u0000/g, '')
     .trim();
   const refundDeadline = buffer.readBigInt64LE(TransactionData.REFUND_DEADLINE);
+  const createAt = buffer.readBigInt64LE(TransactionData.CREATE_AT);
 
   return {
     buyerAddress: new PublicKey(buyerPubkey).toString(),
     id: transactionId.toString(),
-    transactionAmount: Number(amountLamports),
+    transactionAmount: new BigNumber(amountLamports.toString()),
+    create_at: createAt,
     deadline: refundDeadline,
     reason: userDefinedData,
   };
@@ -115,7 +109,14 @@ const ClaimedRightsList = () => {
     fetchData();
   }, [publicKey]);
 
-  const nowDate = getCurrentDate(new Date());
+  const formatDate = (timestamp: bigint): string => {
+    return new Date(Number(timestamp) * 1000).toLocaleString();
+  };
+
+  // lamports形式をsolの形式に変更
+  const formatAmount = (amount: BigNumber): string => {
+    return amount.dividedBy(1e9).toFixed(9);
+  };
 
   return (
     <div className={styles.ClaimedRightsListContainer}>
@@ -130,12 +131,13 @@ const ClaimedRightsList = () => {
                     {transaction.buyerAddress}
                   </div>
                   <div className={styles.transactionAmount}>
-                    {transaction.transactionAmount} SOL
+                    {formatAmount(transaction.transactionAmount)} SOL
                   </div>
                 </div>
                 <div className={styles.sellerInfo2}>
                   <div className={styles.transactionDate}>
-                    {nowDate} ~ {transaction.deadline}
+                    {formatDate(transaction.create_at)} ~{' '}
+                    {formatDate(transaction.deadline)}
                   </div>
                   <div className={styles.transactionId}>
                     Transaction ID: {transaction.id}

@@ -12,12 +12,12 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection, PublicKey } from '@solana/web3.js';
 import { TransactionData } from '../TransactionData';
 import { SOLANA_NETWORK, PROGRAM_ID } from '../../../../../constant';
+import { BigNumber } from 'bignumber.js';
 
 const ClaimsList: React.FC = () => {
   // useState の初期化時に型を指定
   const [transactions, setTransactions] = useState<RefundableEscrowData[]>([]);
   const { publicKey } = useWallet();
-  //const nowDate = getCurrentDate();
 
   // データ取得の例
   useEffect(() => {
@@ -42,12 +42,14 @@ const ClaimsList: React.FC = () => {
       fetchData();
     }
   }, [publicKey]);
+
   const formatDate = (timestamp: bigint): string => {
     return new Date(Number(timestamp) * 1000).toLocaleString();
   };
 
-  const formatAmount = (lamports: bigint): string => {
-    return (Number(lamports) / 1e9).toFixed(9);
+  // lamports形式をsolの形式に変更
+  const formatAmount = (amount: BigNumber): string => {
+    return amount.dividedBy(1e9).toFixed(9);
   };
 
   return (
@@ -103,7 +105,7 @@ type RefundableEscrowData = {
   buyer_pubkey: PublicKey;
   seller_pubkey: PublicKey;
   transaction_id: bigint;
-  amount_lamports: bigint;
+  amount_lamports: BigNumber;
   create_at: bigint;
   refund_deadline: bigint;
   is_canceled: boolean;
@@ -176,7 +178,7 @@ function decodeRefundableEscrow(buffer: Buffer): RefundableEscrowData {
     seller_pubkey: new PublicKey(sellerPubkey),
     buyer_pubkey: new PublicKey(buyerPubkey),
     transaction_id: transactionId,
-    amount_lamports: amountLamports,
+    amount_lamports: new BigNumber(amountLamports.toString()),
     create_at: createAt,
     refund_deadline: refundDeadline,
     is_canceled: isCanceled,
