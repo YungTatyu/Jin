@@ -23,7 +23,7 @@ boolを返すのでも良かったが、下の関数群と合わせるためにR
 function validateTransactionInfo(transactionInfo: string): Result<string> {
   transactionInfo = transactionInfo.trim();
 
-  if (!/^[a-zA-Z0-9]+$/.test(transactionInfo)) {
+  if (!/^[\x20-\x7E]+$/.test(transactionInfo)) {
     return {
       value: '',
       error:
@@ -37,7 +37,7 @@ function validateTransactionInfo(transactionInfo: string): Result<string> {
   ) {
     return {
       value: '',
-      error: 'Transaction info should be no longer than 100 characters',
+      error: `Transaction info should be no longer than ${MAX_TRANSACTION_INFO} characters`,
     };
   }
   return { value: transactionInfo, error: '' };
