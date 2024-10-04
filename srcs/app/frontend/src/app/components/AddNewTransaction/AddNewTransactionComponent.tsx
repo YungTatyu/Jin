@@ -26,14 +26,18 @@ function validateTransactionInfo(transactionInfo: string): Result<string> {
   if (!/^[a-zA-Z0-9]+$/.test(transactionInfo)) {
     return {
       value: '',
-      error: '"transaction info" field must contain only alphanumeric characters'
+      error:
+        '"transaction info" field must contain only alphanumeric characters',
     };
   }
   // TextEncoderを使ってバイト数を計算
-  if (transactionInfo.length === 0 || transactionInfo.length > MAX_TRANSACTION_INFO) {
+  if (
+    transactionInfo.length === 0 ||
+    transactionInfo.length > MAX_TRANSACTION_INFO
+  ) {
     return {
       value: '',
-      error: 'Transaction info should be no longer than 100 characters'
+      error: 'Transaction info should be no longer than 100 characters',
     };
   }
   return { value: transactionInfo, error: '' };
@@ -116,7 +120,10 @@ function daysToSeconds(days: string): Result<BigNumber> {
   return { value: seconds, error: '' };
 }
 
-function sellerAddressToPublickey(address: string, ownPubKey: PublicKey): Result<PublicKey> {
+function sellerAddressToPublickey(
+  address: string,
+  ownPubKey: PublicKey
+): Result<PublicKey> {
   const INVALID_PUBLIC_KEY = new PublicKey('11111111111111111111111111111111');
   const keyoriginal = address.trim();
   if (keyoriginal === '') {
@@ -148,7 +155,7 @@ function sellerAddressToPublickey(address: string, ownPubKey: PublicKey): Result
     if (pubkey.equals(ownPubKey)) {
       return {
         value: new PublicKey(INVALID_PUBLIC_KEY),
-        error: 'The seller\'s public key is the same as your own public key',
+        error: "The seller's public key is the same as your own public key",
       };
     }
     return { value: pubkey, error: '' };
