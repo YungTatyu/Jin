@@ -31,5 +31,5 @@ lint:
 	${MAKE} down
 
 test-anchor: up
-	sleep 5 && docker exec -it app make -C /usr/src test-anchor
+	sleep 5 && docker exec -i app make -C /usr/src test-anchor
 	${MAKE} down
