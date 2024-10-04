@@ -29,4 +29,5 @@ start-prod:
 
 test-anchor: deploy
 	cd /usr/src/project/ && \
+	export ANCHOR_PROVIDER_URL="https://http://127.0.0.1:8899/" && \
 	anchor test
