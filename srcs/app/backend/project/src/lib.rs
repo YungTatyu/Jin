@@ -32,6 +32,11 @@ pub mod refundable_escrow {
         escrow.is_canceled = false;
         escrow.is_withdrawn = false;
 
+        // check (Seller != Buyer)
+        if ctx.accounts.seller.key() == ctx.accounts.buyer.key() {
+            return Err(ErrorCode::SamePublicKeyError.into());
+        }
+
         // amount validate
         if amount_lamports <= 0 {
             return Err(ErrorCode::AmountTooSmall.into());

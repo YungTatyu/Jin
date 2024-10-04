@@ -18,4 +18,6 @@ pub enum ErrorCode {
     RefundableSecondsError,
     #[msg("Transaction amount is too small.")]
     AmountTooSmall,
+    #[msg("SOL cannot be transferred to the same account.")]
+    SamePublicKeyError,
 }
