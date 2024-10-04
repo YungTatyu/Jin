@@ -26,7 +26,7 @@ const Body: React.FC = () => {
           </div>
 
           <div className={styles.inputGroup}>
-            <label htmlFor="amount">Enter amount</label>
+            <label htmlFor="amount">Enter amount(SOL)</label>
             <input
               type="text"
               id="amount"

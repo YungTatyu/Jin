@@ -100,7 +100,7 @@ export async function settleTransaction(
       })
       .transaction();
 
-    const { blockhash } = await CONNECTION.getRecentBlockhash();
+    const { blockhash } = await CONNECTION.getLatestBlockhash();
     tx.recentBlockhash = blockhash;
     tx.feePayer = wallet.publicKey; // 手数料の支払者を設定
 
