@@ -37,13 +37,12 @@ export async function addNewTransaction(
     transactionId,
     PROGRAM_ID
   );
-
   try {
     const tx = await program.methods
       .createRefundableEscrow(
-        new BN(transactionId),
-        new BN(amountLamports),
-        new BN(refundableSeconds),
+        new BN(transactionId.toString()),
+        new BN(amountLamports.toString()),
+        new BN(refundableSeconds.toString()),
         userDefinedData
       )
       .accounts({
@@ -53,7 +52,7 @@ export async function addNewTransaction(
         systemProgram: SystemProgram.programId,
       })
       .transaction();
-    const { blockhash } = await CONNECTION.getRecentBlockhash();
+    const { blockhash } = await CONNECTION.getLatestBlockhash();
     tx.recentBlockhash = blockhash;
     tx.feePayer = wallet.publicKey; // 手数料の支払者を設定
     // recentBlockhashを取得し設定

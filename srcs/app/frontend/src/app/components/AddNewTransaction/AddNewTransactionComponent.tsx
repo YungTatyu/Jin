@@ -106,10 +106,11 @@ function daysToSeconds(days: string): Result<BigNumber> {
 }
 
 function sellerAddressToPublickey(address: string): Result<PublicKey> {
+  const INVALID_PUBLIC_KEY = new PublicKey('11111111111111111111111111111111');
   const keyoriginal = address.trim();
   if (keyoriginal === '') {
     return {
-      value: new PublicKey(''),
+      value: new PublicKey(INVALID_PUBLIC_KEY),
       error: '"Enter seller address" field is blank',
     };
   }
@@ -117,7 +118,7 @@ function sellerAddressToPublickey(address: string): Result<PublicKey> {
   const base58Regex = /^[1-9A-HJ-NP-Za-km-z]+$/;
   if (keyoriginal.length != 44 || !base58Regex.test(keyoriginal)) {
     return {
-      value: new PublicKey(''),
+      value: new PublicKey(INVALID_PUBLIC_KEY),
       error: 'Seller address is not in the correct format',
     };
   }
@@ -128,13 +129,16 @@ function sellerAddressToPublickey(address: string): Result<PublicKey> {
     // 注意: isOnCurve は静的メソッドなので、インスタンスではなくクラスに対して呼び出します
     if (!PublicKey.isOnCurve(pubkey.toBuffer())) {
       return {
-        value: new PublicKey(''),
+        value: new PublicKey(INVALID_PUBLIC_KEY),
         error: 'Invalid public key: not on ed25519 curve',
       };
     }
     return { value: pubkey, error: '' };
   } catch (error) {
-    return { value: new PublicKey(''), error: `Invalid public key: ${error}` };
+    return {
+      value: new PublicKey(INVALID_PUBLIC_KEY),
+      error: `Invalid public key: ${error}`,
+    };
   }
 }
 
