@@ -21,9 +21,7 @@
   list-style-type: none;
 }
 
-.transactionItem {
-  /* margin-bottom: 16px; */
-}
+/* .transactionItem に相当するclassなし */
 
 .transactionHeader {
   display: flex;

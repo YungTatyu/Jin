@@ -9,15 +9,11 @@
   /* core start */
   height: 4.5rem;
   padding: 0rem 2rem;
-  /* color: #ffffff; */
-  /* background-color: #f24f2b; */
   border: none;
-  /* border-radius: 1rem; */
   text-align: center;
   font-size: 2rem;
   font-weight: bold;
   cursor: pointer;
-  /* core end */
   background-color: #ffffff;
   color: #000000;
 }
