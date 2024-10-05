@@ -19,6 +19,7 @@
   cursor: pointer;
   /* core end */
   background-color: #ffffff;
+  color: #000000;
 }
 
 .active {
