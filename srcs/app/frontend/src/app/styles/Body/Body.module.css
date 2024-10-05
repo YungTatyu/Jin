@@ -1,6 +1,6 @@
 .bodyContainer {
   background-color: #faf2f0;
-  height: auto;
+  /*height: auto;*/
   padding: 7rem 7rem 1rem;
   color: #000000;
 }
@@ -9,6 +9,6 @@
   padding-top: 3rem;
   font-size: 2rem;
   font-weight: bold;
-  height: 65rem;
+  /*height: 65rem;*/
   color: #000000;
 }
