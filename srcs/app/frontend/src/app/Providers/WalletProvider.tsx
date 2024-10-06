@@ -38,11 +38,15 @@ export default function WalletProviderWrapper({
     ],
     [connection]
   );
+  const onError = (error: Error) => {
+    console.error(error);
+    // ここで未承認のウォレット接続試行を処理できます
+  };
 
 
   return (
     <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets} autoConnect={false}>
+      <WalletProvider wallets={wallets} autoConnect={false} onError={onError}>
         <WalletModalProvider>{children}</WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>
