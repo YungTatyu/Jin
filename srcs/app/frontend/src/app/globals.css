@@ -23,11 +23,10 @@ html {
 
 body {
   color: var(--foreground);
-  background: var(--background);
+  background: #faf2f0;
   font-family: sans-serif, Arial, Helvetica;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  padding-bottom: 8rem;
 }
 
 * {
@@ -43,7 +42,6 @@ a {
 
 @media (prefers-color-scheme: dark) {
   html {
-    /*color-scheme: dark;*/
-    color-scheme: #faf2f0;
+    color-scheme: dark;
   }
 }
