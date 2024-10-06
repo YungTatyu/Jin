@@ -9,6 +9,9 @@ import {
   PhantomWalletAdapter,
   SolflareWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
+
+import { BraveWalletAdapter } from '@solana/wallet-adapter-brave'; // 追加
+
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import '@solana/wallet-adapter-react-ui/styles.css';
 import '../styles/Providers/Wallet-adapter-override.css'; // 新しく追加
@@ -29,16 +32,16 @@ export default function WalletProviderWrapper({
 
   const wallets = useMemo(
     () => [
-      new PhantomWalletAdapter({ connection }),
+      new PhantomWalletAdapter(),
       new SolflareWalletAdapter(),
+      new BraveWalletAdapter(), // 追加
     ],
-    []
+    [connection]
   );
 
   return (
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect={false}>
-        {/* autoConnectをfalseに変更 */}
         <WalletModalProvider>{children}</WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>

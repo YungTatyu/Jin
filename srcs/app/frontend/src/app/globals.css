@@ -23,7 +23,7 @@ html {
 
 body {
   color: var(--foreground);
-  background: var(--background);
+  background: #faf2f0;
   font-family: sans-serif, Arial, Helvetica;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

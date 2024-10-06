@@ -1,11 +1,13 @@
-.PHONY: build default
+.PHONY: up, down, re
 
-DEV := npx next dev
-COLOR := \033[1;33m
-RESET := \033[0m
+DOCKER_COMPOSE = @docker compose
+COMPOSE_YML_PATH = ./docker-compose.yml
+APP_DIR := ./
 
-build:
-	@echo -e "$(COLOR)BUILD$(RESET)"
-	@$(DEV)
+up:
+	${DOCKER_COMPOSE} -f ${COMPOSE_YML_PATH} up -d --build app
 
-default: build
+down:
+	${DOCKER_COMPOSE} -f ${COMPOSE_YML_PATH} down --rmi all --volumes --remove-orphans
+
+re: down up

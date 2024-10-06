@@ -21,9 +21,7 @@
   list-style-type: none;
 }
 
-.transactionItem {
-  /* margin-bottom: 16px; */
-}
+/* .transactionItem に相当するclassなし */
 
 .transactionHeader {
   display: flex;
@@ -34,14 +32,6 @@
   border: 0.25rem solid #ffdbc9;
   border-radius: 1rem 1rem 0rem 0rem;
 }
-
-/* .checkbox {
-  background-color: #ffdbc9;
-  color: #000000;
-  height: 45px;
-  width: 45px;
-  border-radius: 10px; 
-} */
 
 .sellerInfo {
   flex-grow: 1;
