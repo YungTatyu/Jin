@@ -44,6 +44,6 @@ a {
 @media (prefers-color-scheme: dark) {
   html {
     /*color-scheme: dark;*/
-    background-color: #faf2f0;
+    color-scheme: #faf2f0;
   }
 }
