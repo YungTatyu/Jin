@@ -1,28 +1,39 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import {
   WalletModalButton,
   WalletConnectButton,
   WalletDisconnectButton,
+  useWalletModal,
 } from '@solana/wallet-adapter-react-ui';
 
 const ConnectWalletButton: React.FC = () => {
-  //const { connected, disconnect, publicKey } = useWallet();
-  const { wallet, connected } = useWallet();
+  const { wallet, connected, disconnect } = useWallet();
+  const { setVisible } = useWalletModal();
 
-  return (
-    <div>
-      {connected ? (
-        <WalletDisconnectButton>Disconnect The Wallet</WalletDisconnectButton>
-      ) : wallet ? (
+  const handleDisconnect = useCallback(async () => {
+    await disconnect();
+    setVisible(true); // ウォレットを切断した後、モーダルを再表示
+  }, [disconnect, setVisible]);
+
+  if (connected) {
+    return (
+      <WalletDisconnectButton onClick={handleDisconnect}>
+        Disconnect The Wallet
+      </WalletDisconnectButton>
+    );
+  }
+  if (wallet) {
+    return (
+      <>
         <WalletConnectButton>Connect The Wallet</WalletConnectButton>
-      ) : (
-        <WalletModalButton>Select The Wallet</WalletModalButton>
-      )}
-    </div>
-  );
+        <WalletModalButton>Change Wallet</WalletModalButton>
+      </>
+    );
+  }
+  return <WalletModalButton>Select The Wallet</WalletModalButton>;
 };
 
 export default ConnectWalletButton;

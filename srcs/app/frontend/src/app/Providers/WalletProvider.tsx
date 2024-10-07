@@ -9,9 +9,7 @@ import {
   PhantomWalletAdapter,
   SolflareWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
-
 import { BraveWalletAdapter } from '@solana/wallet-adapter-brave'; // 追加
-
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import '@solana/wallet-adapter-react-ui/styles.css';
 import '../styles/Providers/Wallet-adapter-override.css'; // 新しく追加
@@ -25,8 +23,6 @@ export default function WalletProviderWrapper({
 }) {
   // Localnetのエンドポイントを指定
   const endpoint = SOLANA_NETWORK;
-  //const network = WalletAdapterNetwork.Devnet;
-  //const endpoint = useMemo(() => clusterApiUrl(network), [network]);
   // コネクションオブジェクトの作成
   const connection = useMemo(() => new Connection(endpoint), [endpoint]);
 
