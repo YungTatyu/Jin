@@ -31,11 +31,10 @@ const WithdrawButton: React.FC<WithdrawButtonProps> = ({
         seller_pubkey,
         Number(transactionId)
       );
-      alert(`${f}`);
+      alert(`Success`);
     } else {
-      alert(`wallet 接続されていない`);
+      alert(`Error: No wallet connected`);
     }
-    alert('Hello, world!');
   };
   return (
     <button className={styles.ButtonContainer} onClick={onClick}>
