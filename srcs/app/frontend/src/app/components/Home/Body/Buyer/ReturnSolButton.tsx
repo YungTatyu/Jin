@@ -31,7 +31,11 @@ const ReturnSolButton: React.FC<ReturnSolButtonProps> = ({
         seller_pubkey,
         Number(transactionId)
       );
-      alert(`Success`);
+      if (f) {
+        alert(`Success`);
+      } else {
+        alert(`Failure`);
+      }
     } else {
       alert(`Error: No wallet connected`);
     }
