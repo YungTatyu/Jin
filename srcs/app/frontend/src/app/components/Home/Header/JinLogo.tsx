@@ -4,9 +4,7 @@ import styles from '../../../styles/Header/JinLogo.module.css';
 
 const JinLogo: React.FC = () => {
   return (
-    <Link href="/" className={styles.logo}>
-      Jin
-    </Link>
+    <div className={styles.logo}>Jin</div>
   );
 };
 
