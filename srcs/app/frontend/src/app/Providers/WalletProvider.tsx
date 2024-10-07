@@ -8,8 +8,12 @@ import {
 import {
   PhantomWalletAdapter,
   SolflareWalletAdapter,
+  TrustWalletAdapter,
+  LedgerWalletAdapter,
+  CoinbaseWalletAdapter,
 } from '@solana/wallet-adapter-wallets';
 import { BraveWalletAdapter } from '@solana/wallet-adapter-brave'; // 追加
+import { BackpackWalletAdapter } from '@solana/wallet-adapter-backpack'; // 追加
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import '@solana/wallet-adapter-react-ui/styles.css';
 import '../styles/Providers/Wallet-adapter-override.css'; // 新しく追加
@@ -31,6 +35,10 @@ export default function WalletProviderWrapper({
       new PhantomWalletAdapter(),
       new SolflareWalletAdapter(),
       new BraveWalletAdapter(), // 追加
+      new TrustWalletAdapter(),
+      new LedgerWalletAdapter(),
+      new CoinbaseWalletAdapter(),
+      new BackpackWalletAdapter(), // 追加
     ],
     [connection]
   );

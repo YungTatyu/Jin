@@ -31,11 +31,14 @@ const ReturnSolButton: React.FC<ReturnSolButtonProps> = ({
         seller_pubkey,
         Number(transactionId)
       );
-      alert(`${f}`);
+      if (f) {
+        alert(`Success`);
+      } else {
+        alert(`Failure`);
+      }
     } else {
-      alert(`wallet 接続されていない`);
+      alert(`Error: No wallet connected`);
     }
-    alert(`Hello! ${buyer_pubkey}`);
   };
   return (
     <button className={styles.ButtonContainer} onClick={onClick}>
